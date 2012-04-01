@@ -17,4 +17,4 @@ href="http://wiki.civvic.ro/">wiki.civvic.ro</a>. Acum suntem în faza de împă
 {include file=bits/actSelect.tpl text="Legea" actType="Lege" prefix="law" years=$lawYears}
 {include file=bits/actSelect.tpl text="Decretul" actType="Decret" prefix="decree" years=$decreeYears}
 {include file=bits/actSelect.tpl text="Decretul-lege" actType="Decret-lege" prefix="dl" years=$dlYears}
-{include file=bits/actSelect.tpl text="Hotărârea guvernului" actType="Hotărâre" prefix="ord" years=$ordYears}
+{include file=bits/actSelect.tpl text="Hotărârea guvernului" actType="Hotărâre a Guvernului" prefix="ord" years=$ordYears}

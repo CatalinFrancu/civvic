@@ -27,7 +27,7 @@ if (count($numbers) > 1) {
   $query->where_like('year', $numbers[1] . '%');
 }
 foreach ($other as $word) {
-  $query->where_raw("(act.name like '%{$word}%' or act_type.name like '%{$word}%' or artName like '%{$word}%' or genArtName like '%{$word}%')");
+  $query->where_raw("(act.name like '%{$word}%' or act_type.name like '%{$word}%' or artName like '%{$word}%')");
 }
 $acts = $query->limit(AUTOCOMPLETE_LIMIT)->find_many();
 
@@ -51,7 +51,7 @@ if ($ref && (count($results) < AUTOCOMPLETE_LIMIT)) {
     $clauses[] = sprintf("(act_reference.year like '%s%%')", $numbers[1]);
   }
   foreach ($other as $word) {
-    $clauses[] = "(act_type.name like '%{$word}%' or act_type.artName like '%{$word}%' or act_type.genArtName like '%{$word}%')";
+    $clauses[] = "(act_type.name like '%{$word}%' or act_type.artName like '%{$word}%')";
   }
   $query = sprintf("select distinct act_type.id, act_type.artName, act_reference.number, act_reference.year " .
                    "from act_type, act_reference, act_version, act " .
