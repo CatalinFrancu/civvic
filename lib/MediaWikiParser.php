@@ -21,31 +21,37 @@ class MediaWikiParser {
     $text = self::deleteEmptyTables($text);
 
     // Automatic links to acts
+    $months = implode('|', StringUtil::$months);
     $actTypes = Model::factory('ActType')->raw_query('select * from act_type order by length(name) desc', null)->find_many();
     foreach ($actTypes as $at) {
-      $type = sprintf("(%s|%s|%s)", $at->name, $at->artName, $at->genArtName);
-      // Parses "(din|/) (<day> <month>)? <year>"
-      $date = sprintf("\\s*(din|\\/)\\s*(\\d{1,2}\\s+(%s)\\s+)?(?P<year>\\d{4})", implode('|', StringUtil::$months));
-      $regexp = "/(?<!-){$type}\\s+(nr\\.?)?\\s*(?P<number>[-0-9A-Za-z.]+){$date}(?!<\\/a)/i";
-      $matches = array();
-      preg_match_all($regexp, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
-      foreach (array_reverse($matches) as $match) {
-        $linkText = $match[0][0];
-        $position = $match[0][1];
-        $number = $match['number'][0];
-        $year = $match['year'][0];
+      $regexps = explode("\n", $at->regexps);
+      foreach ($regexps as $regexp) {
+        if ($regexp) {
+          $regexp = "/(?<!-){$regexp}(?!<\\/a)/i";
+          $regexp = str_replace('NUMBER', '(?P<number>[-0-9A-Za-z.]+)', $regexp);
+          $regexp = str_replace('DATE', "(\\d{1,2}\\s+({$months})\\s+)?(?P<year>\\d{4})", $regexp);
 
-        if ($position && $text[$position - 1] == '@') {
-          $text = substr($text, 0, $position - 1) . substr($text, $position);
-        } else {
-          $link = Act::getLink($at->id, $number, $year, $linkText);
-          $text = substr($text, 0, $position) . $link . substr($text, $position + strlen($linkText));
-          if ($actReferences !== null) {
-            $ref = Model::factory('ActReference')->create();
-            $ref->actTypeId = $at->id;
-            $ref->number = $number;
-            $ref->year = $year;
-            $actReferences[] = $ref;
+          $matches = array();
+          preg_match_all($regexp, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+          foreach (array_reverse($matches) as $match) {
+            $linkText = $match[0][0];
+            $position = $match[0][1];
+            $number = $match['number'][0];
+            $year = $match['year'][0];
+
+            if ($position && $text[$position - 1] == '@') {
+              $text = substr($text, 0, $position - 1) . substr($text, $position);
+            } else {
+              $link = Act::getLink($at->id, $number, $year, $linkText);
+              $text = substr($text, 0, $position) . $link . substr($text, $position + strlen($linkText));
+              if ($actReferences !== null) {
+                $ref = Model::factory('ActReference')->create();
+                $ref->actTypeId = $at->id;
+                $ref->number = $number;
+                $ref->year = $year;
+                $actReferences[] = $ref;
+              }
+            }
           }
         }
       }
@@ -348,11 +354,10 @@ class MediaWikiParser {
         // Extract the act type from the title
         $i = 0;
         do {
-          if ($actTypes[$i]->shortName &&
-              (StringUtil::startsWith($act->name, $actTypes[$i]->name) ||
-               StringUtil::startsWith($act->name, $actTypes[$i]->shortName) ||
-               StringUtil::startsWith($act->name, $actTypes[$i]->artName))) {
-            $act->actTypeId = $actTypes[$i]->id;
+          foreach (explode("\n", $actTypes[$i]->prefixes) as $prefix) {
+            if (StringUtil::startsWith($act->name, $prefix . ' ')) {
+              $act->actTypeId = $actTypes[$i]->id;
+            }
           }
           $i++;
         } while ($i < count($actTypes) && !$act->actTypeId);

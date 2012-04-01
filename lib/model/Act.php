@@ -52,7 +52,7 @@ class Act extends BaseObject {
   }
 
   static function listYears($actTypeName) {
-    $actType = ActType::get_by_shortName($actTypeName);
+    $actType = ActType::get_by_name($actTypeName);
     $acts = Model::factory('Act')->select('year')->distinct()->where('actTypeId', $actType->id)->order_by_desc('year')->find_many();
     $results = array();
     foreach ($acts as $a) {

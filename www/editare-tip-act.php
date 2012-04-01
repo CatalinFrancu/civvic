@@ -6,9 +6,9 @@ Util::requireAdmin();
 $id = Util::getRequestParameter('id');
 $deleteId = Util::getRequestParameter('deleteId');
 $name = Util::getRequestParameter('name');
-$shortName = Util::getRequestParameter('shortName');
 $artName = Util::getRequestParameter('artName');
-$genArtName = Util::getRequestParameter('genArtName');
+$regexps = Util::getRequestParameter('regexps');
+$prefixes = Util::getRequestParameter('prefixes');
 $submitButton = Util::getRequestParameter('submitButton');
 
 if ($deleteId) {
@@ -34,9 +34,9 @@ if ($id) {
 
 if ($submitButton) {
   $actType->name = $name;
-  $actType->shortName = $shortName;
   $actType->artName = $artName;
-  $actType->genArtName = $genArtName;
+  $actType->regexps = trim($regexps);
+  $actType->prefixes = trim($prefixes);
   if ($actType->validate()) {
     $actType->save();
     FlashMessage::add('Datele au fost salvate.', 'info');

@@ -5,7 +5,7 @@ require_once '../../lib/Util.php';
 $type = Util::getRequestParameter('type');
 $year = Util::getRequestParameter('year');
 
-$actType = ActType::get_by_shortName($type);
+$actType = ActType::get_by_name($type);
 $acts = Model::factory('Act')
   ->raw_query("select * from act where actTypeId = {$actType->id} and year = {$year} order by cast(number as unsigned)", null)->find_many();
 
