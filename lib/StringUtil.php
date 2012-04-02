@@ -64,8 +64,8 @@ class StringUtil {
     return $s;
   }
 
-  static function cleanupUserInput($s) {
-    $s = str_replace("\r", '', $s);
+  static function sanitize($s) {
+    $s = str_replace(array("\r", 'ş', 'Ş', 'ţ', 'Ţ'), array('', 'ș', 'Ș', 'ț', 'Ț'), $s);
     return $s;
   }
 }

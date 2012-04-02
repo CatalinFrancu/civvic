@@ -77,7 +77,7 @@ class Util {
   }
 
   static function getRequestParameter($name, $default = null) {
-    return array_key_exists($name, $_REQUEST) ? $_REQUEST[$name] : $default;
+    return array_key_exists($name, $_REQUEST) ? StringUtil::sanitize($_REQUEST[$name]) : $default;
   }
 
   static function makePostRequest($url, $data, $useCookies = false) {
