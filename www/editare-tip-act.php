@@ -9,6 +9,7 @@ $name = Util::getRequestParameter('name');
 $artName = Util::getRequestParameter('artName');
 $regexps = Util::getRequestParameter('regexps');
 $prefixes = Util::getRequestParameter('prefixes');
+$sectionNames = Util::getRequestParameter('sectionNames');
 $submitButton = Util::getRequestParameter('submitButton');
 
 if ($deleteId) {
@@ -37,6 +38,7 @@ if ($submitButton) {
   $actType->artName = $artName;
   $actType->regexps = trim($regexps);
   $actType->prefixes = trim($prefixes);
+  $actType->sectionNames = trim($sectionNames);
   if ($actType->validate()) {
     $actType->save();
     FlashMessage::add('Datele au fost salvate.', 'info');
