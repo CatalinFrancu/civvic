@@ -9,7 +9,7 @@ $actVersions = Model::factory('ActVersion')->order_by_asc('id')->find_many();
 
 foreach ($actVersions as $av) {
   print("Saving act version {$av->id}\n");
-  $av->contents = StringUtil::cleanupUserInput($av->contents); // Force dirty field
+  $av->contents = StringUtil::sanitize($av->contents); // Force dirty field
   $oldHtml = $av->htmlContents;
   $av->save();
   if ($av->htmlContents != $oldHtml) {
