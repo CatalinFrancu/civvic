@@ -334,9 +334,33 @@ class MediaWikiParser {
     $headers23[] = count($lines);
 
     $actTypes = Model::factory('ActType')->raw_query('select * from act_type order by length(name) desc', null)->find_many();
+    $sectionActTypeId = 0;
 
     foreach ($headers23 as $i => $lineNo) {
-      if ($i < count($headers23) - 1 && StringUtil::startsWith($lines[$lineNo], '===')) {
+      $line = ($lineNo < count($lines)) ? $lines[$lineNo] : '';
+
+      if (StringUtil::startsWith($line, '==') && !StringUtil::startsWith($line, '===')) {
+        // See if this section title points to an act type
+        $matches = array();
+        preg_match("/^\\s*==(?P<title>.+)==\\s*$/", $line, $matches);
+        if (!array_key_exists('title', $matches)) {
+          FlashMessage::add("Nu pot extrage titlul secțiunii din linia '$line'.");
+          return false;
+        }
+        $title = trim($matches['title']);
+        $sectionActTypeId = 0;
+        $i = 0;
+        do {
+          foreach (explode("\n", $actTypes[$i]->sectionNames) as $sectionName) {
+            if ($title == $sectionName) {
+              $sectionActTypeId = $actTypes[$i]->id;
+            }
+          }
+          $i++;
+        } while ($i < count($actTypes) && !$sectionActTypeId);
+      }
+
+      if ($i < count($headers23) - 1 && StringUtil::startsWith($line, '===')) {
         $chunk = array_slice($lines, $lineNo, $headers23[$i + 1] - $lineNo);
         $act = Model::factory('Act')->create();
         $act->year = $monitor->year;
@@ -352,19 +376,24 @@ class MediaWikiParser {
         $act->name = trim($matches['title']);
 
         // Extract the act type from the title
-        $i = 0;
-        do {
-          foreach (explode("\n", $actTypes[$i]->prefixes) as $prefix) {
-            if (StringUtil::startsWith($act->name, $prefix . ' ')) {
-              $act->actTypeId = $actTypes[$i]->id;
+        if ($sectionActTypeId) {
+          $act->actTypeId = $sectionActTypeId;
+        } else {
+          $i = 0;
+          do {
+            foreach (explode("\n", $actTypes[$i]->prefixes) as $prefix) {
+              if (StringUtil::startsWith($act->name, $prefix . ' ')) {
+                $act->actTypeId = $actTypes[$i]->id;
+              }
             }
+            $i++;
+          } while ($i < count($actTypes) && !$act->actTypeId);
+
+          if (!$act->actTypeId) {
+            FlashMessage::add("Nu pot extrage tipul de act din titlul '{$act->name}'. Voi folosi implicit tipul 'Diverse'.", 'warning');
+            $diverse = ActType::get_by_name('Diverse');
+            $act->actTypeId = $diverse->id;
           }
-          $i++;
-        } while ($i < count($actTypes) && !$act->actTypeId);
-        if (!$act->actTypeId) {
-          FlashMessage::add("Nu pot extrage tipul de act din titlul '{$act->name}'. Voi folosi implicit tipul 'Diverse'.", 'warning');
-          $diverse = ActType::get_by_name('Diverse');
-          $act->actTypeId = $diverse->id;
         }
 
         // Locate the signature line
@@ -428,180 +457,101 @@ class MediaWikiParser {
         $parts[trim($nv[0])] = trim($nv[1]);
       }
     }
-    $data = array();
 
-    // Parse the signature line
-    switch($parts[0]) {
-    case 'SemnPcfsn':
-      $author = Model::factory('Author')->where('position', 'Președintele Consiliului Frontului Salvării Naționale')
-        ->where('name', $parts[1])->find_one();
-      if (!$author) {
-        FlashMessage::add("Trebuie definit autorul 'Președintele Consiliului Frontului Salvării Naționale, {$parts[1]}'.");
-        return false;
-      }
-      $data['authorId'] = $author->id;
-
-      $place = Place::get_by_name($parts[2]);
-      if (!$place) {
-        FlashMessage::add("Trebuie definit locul '{$parts[2]}'.");
-        return false;
-      }
-      $data['placeId'] = $place->id;
-
-      $issueDate = StringUtil::parseRomanianDate($parts[3]);
-      if (!$issueDate) {
-        FlashMessage::add(sprintf("Data '%s' este incorectă.", $parts[3]));
-        return false;
-      }
-      $data['issueDate'] = $issueDate;
-
-      $data['number'] = $parts[4];
-      break;
-
-    case 'SemnPm':
-      $author = Model::factory('Author')->where('position', 'Prim-ministru')->where('name', $parts[1])->find_one();
-      if (!$author) {
-        FlashMessage::add("Trebuie definit autorul 'Prim-ministru, {$parts[1]}'.");
-        return false;
-      }
-      $data['authorId'] = $author->id;
-
-      $place = Place::get_by_name($parts[2]);
-      if (!$place) {
-        FlashMessage::add("Trebuie definit locul '{$parts[2]}'.");
-        return false;
-      }
-      $data['placeId'] = $place->id;
-
-      $issueDate = StringUtil::parseRomanianDate($parts[3]);
-      if (!$issueDate) {
-        FlashMessage::add(sprintf("Data '%s' este incorectă.", $parts[3]));
-        return false;
-      }
-      $data['issueDate'] = $issueDate;
-
-      $data['number'] = $parts[4];
-      break;
-
+    switch ($parts[0]) {
     case 'Sem-p-Pm':
-      foreach (array('pt', 'nume', 'func', 'dataAct', 'nrAct') as $arg) {
-        if (!array_key_exists($arg, $parts)) {
-          FlashMessage::add("Semnătura '{$line}' nu include parametrul '{$arg}'.");
-          return false;
-        }
-      }
-      if (!array_key_exists('oras', $parts)) {
-        $parts['oras'] = 'București';
-      }
-      if ($parts['func']) {
-        FlashMessage::add("Nu știu să gestionez argumentul 'func' în semnătura '{$line}'.");
-        return false;
-      }
-
-      $author = Model::factory('Author')->where('position', $parts['pt'] . ' Prim-ministru')->where('name', $parts['nume'])->find_one();
-      if (!$author) {
-        FlashMessage::add(sprintf("Trebuie definit autorul '%s Prim-ministru, %s', ", $parts['pt'], $parts['nume']));
-        return false;
-      }
-      $data['authorId'] = $author->id;
-
-      $place = Place::get_by_name($parts['oras']);
-      if (!$place) {
-        FlashMessage::add(sprintf("Trebuie definit locul '%s'.", $parts['oras']));
-        return false;
-      }
-      $data['placeId'] = $place->id;
-
-      $issueDate = StringUtil::parseRomanianDate($parts['dataAct']);
-      if (!$issueDate) {
-        FlashMessage::add(sprintf("Data '%s' este incorectă.", $parts['dataAct']));
-        return false;
-      }
-      $data['issueDate'] = $issueDate;
-
-      $data['number'] = $parts['nrAct'];
-      break;
-
+      return self::parseSignatureParts($line, $parts, array('name' => array('%s', array('nume')),
+                                                            'position' => array('%s Prim-ministru', array('pt'))),
+                                       'oras', 'dataAct', 'nrAct', array('pt', 'nume', 'func', 'dataAct', 'nrAct'),
+                                       array('oras' => 'București'), array('func'));
+    case 'SemnPcfsn':
+      return self::parseSignatureParts($line, $parts, array('name' => array('%s', array(1)),
+                                                            'position' => array('Președintele Consiliului Frontului Salvării Naționale', array())),
+                                       2, 3, 4, range(1, 4));
+    case 'SemnPm':
+      return self::parseSignatureParts($line, $parts, array('name' => array('%s', array(1)),
+                                                            'position' => array('Prim-ministru', array())),
+                                       2, 3, 4, range(1, 4));
     case 'SemnCfsn':
-      $author = Model::factory('Author')->where('institution', 'Consiliul Frontului Salvării Naționale')->where('name', '')->find_one();
-      if (!$author) {
-        FlashMessage::add("Trebuie definit autorul 'Consiliul Frontului Salvării Naționale'.");
-        return false;
-      }
-      $data['authorId'] = $author->id;
-
-      $place = Place::get_by_name($parts[1]);
-      if (!$place) {
-        FlashMessage::add("Trebuie definit locul '{$parts[1]}'.");
-        return false;
-      }
-      $data['placeId'] = $place->id;
-
-      $issueDate = StringUtil::parseRomanianDate($parts[2]);
-      if (!$issueDate) {
-        FlashMessage::add(sprintf("Data '%s' este incorectă.", $parts[2]));
-        return false;
-      }
-      $data['issueDate'] = $issueDate;
-
-      $data['number'] = $parts[3];
-      break;
-
+      return self::parseSignatureParts($line, $parts, array('name' => array('', array()),
+                                                            'institution' => array('Consiliul Frontului Salvării Naționale', array())),
+                                       1, 2, 3, range(1, 3));
     case 'SemnPcpun':
-      $author = Model::factory('Author')->where('position', 'Președintele Consiliului Provizoriu de Uniune Națională')
-        ->where('name', $parts[1])->find_one();
-      if (!$author) {
-        FlashMessage::add("Trebuie definit autorul 'Președintele Consiliului Frontului Salvării Naționale, {$parts[1]}'.");
-        return false;
-      }
-      $data['authorId'] = $author->id;
-
-      $place = Place::get_by_name($parts[2]);
-      if (!$place) {
-        FlashMessage::add("Trebuie definit locul '{$parts[2]}'.");
-        return false;
-      }
-      $data['placeId'] = $place->id;
-
-      $issueDate = StringUtil::parseRomanianDate($parts[3]);
-      if (!$issueDate) {
-        FlashMessage::add(sprintf("Data '%s' este incorectă.", $parts[3]));
-        return false;
-      }
-      $data['issueDate'] = $issueDate;
-
-      $data['number'] = $parts[4];
-      break;
-
+      return self::parseSignatureParts($line, $parts, array('name' => array('%s', array(1)),
+                                                            'position' => array('Președintele Consiliului Provizoriu de Uniune Națională', array())),
+                                       2, 3, 4, range(1, 4));
     case 'Autor':
-      $author = Model::factory('Author')->where('position', $parts[1])->where('name', $parts[2])->find_one();
-      if (!$author) {
-        FlashMessage::add("Trebuie definit autorul '$parts[1]', {$parts[2]}'.");
-        return false;
-      }
-      $data['authorId'] = $author->id;
-
-      $place = Place::get_by_name($parts[3]);
-      if (!$place) {
-        FlashMessage::add("Trebuie definit locul '{$parts[3]}'.");
-        return false;
-      }
-      $data['placeId'] = $place->id;
-
-      $issueDate = StringUtil::parseRomanianDate($parts[4]);
-      if (!$issueDate) {
-        FlashMessage::add(sprintf("Data '%s' este incorectă.", $parts[4]));
-        return false;
-      }
-      $data['issueDate'] = $issueDate;
-
-      $data['number'] = $parts[5];
-      break;
-
+      return self::parseSignatureParts($line, $parts, array('name' => array('%s', array(2)),
+                                                            'position' => array('%s', array(1))),
+                                       3, 4, 5, range(1, 5));
+    case 'SemnPad':
+      return self::parseSignatureParts($line, $parts, array('name' => array('%s', array(1)),
+                                                            'position' => array('Președintele Adunării Deputaților', array())),
+                                       2, 3, 4, range(1, 4));
+    case 'SemnPs':
+      return self::parseSignatureParts($line, $parts, array('concat(title, " ", name)' => array('%s', array(1)),
+                                                            'position' => array('Președintele Senatului', array())),
+                                       2, 3, 4, range(1, 4));
     default:
       FlashMessage::add(sprintf("Nu știu să interpretez semnături de tipul {{%s}}.", $parts[0]));
       return false;
     }
+  }
+
+  private static function parseSignatureParts($line, $parts, $authorSpecs, $placeNameField, $issueDateField, $actNumberField, $requiredFields,
+                                              $defaultValues = array(), $nullValues = array()) {
+    foreach ($requiredFields as $arg) {
+      if (!array_key_exists($arg, $parts)) {
+        FlashMessage::add("Semnătura '{$line}' nu include parametrul '{$arg}'.");
+        return false;
+      }
+    }
+    foreach ($defaultValues as $key => $value) {
+      if (!array_key_exists($key, $parts)) {
+        $parts[$key] = $value;
+      }
+    }
+    foreach ($nullValues as $key) {
+      if ($parts[$key]) {
+        FlashMessage::add(sprintf("Nu știu să gestionez argumentul '%s' în semnătura '%s'.", $key, $line));
+        return false;
+      }
+    }
+    $data = array();
+
+    $author = Model::factory('Author');
+    $authorDetails = array();
+    foreach ($authorSpecs as $expr => $format) {
+      $args = array();
+      foreach ($format[1] as $key) {
+        $args[] = $parts[$key];
+      }
+      $s = vsprintf($format[0], $args);
+      $author = $author->where_raw("$expr = '$s'");
+      $authorDetails[] = $s;
+    }
+    $author = $author->find_one();
+    if (!$author) {
+      FlashMessage::add(sprintf("Trebuie definit autorul '%s', ", implode(', ', $authorDetails)));
+      return false;
+    }
+    $data['authorId'] = $author->id;
+
+    $place = Place::get_by_name($parts[$placeNameField]);
+    if (!$place) {
+      FlashMessage::add(sprintf("Trebuie definit locul '%s'.", $parts[$placeNameField]));
+      return false;
+    }
+    $data['placeId'] = $place->id;
+
+    $issueDate = StringUtil::parseRomanianDate($parts[$issueDateField]);
+    if (!$issueDate) {
+      FlashMessage::add(sprintf("Data '%s' este incorectă.", $parts[$issueDateField]));
+      return false;
+    }
+    $data['issueDate'] = $issueDate;
+
+    $data['number'] = $parts[$actNumberField];
     return $data;
   }
 

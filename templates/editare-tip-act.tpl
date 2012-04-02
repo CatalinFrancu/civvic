@@ -15,6 +15,8 @@
   <textarea name="regexps" rows="5">{$actType->regexps}</textarea><br/>
   Prefixe: <span class="hint">(din titlurile actelor la importarea de monitoare)</span><br/>
   <textarea name="prefixes" rows="5">{$actType->prefixes}</textarea><br/>
+  Nume de secțiuni: <span class="hint">(cuprinse între == == la importarea de monitoare)</span><br/>
+  <textarea name="sectionNames" rows="5">{$actType->sectionNames}</textarea><br/>
   <input type="submit" name="submitButton" value="Salvează"/>
 </form>
 
