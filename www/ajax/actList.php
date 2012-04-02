@@ -7,7 +7,8 @@ $year = Util::getRequestParameter('year');
 
 $actType = ActType::get_by_name($type);
 $acts = Model::factory('Act')
-  ->raw_query("select * from act where actTypeId = {$actType->id} and year = {$year} order by cast(number as unsigned)", null)->find_many();
+  ->raw_query("select * from act where actTypeId = ? and year = ? order by cast(number as unsigned)", array($actType->id, $year))
+  ->find_many();
 
 $results = array();
 foreach ($acts as $a) {
