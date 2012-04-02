@@ -27,7 +27,8 @@ if (count($numbers) > 1) {
   $query->where_like('year', $numbers[1] . '%');
 }
 foreach ($other as $word) {
-  $query->where_raw("(act.name like '%{$word}%' or act_type.name like '%{$word}%' or artName like '%{$word}%')");
+  $query->where_raw("(act.name like ? or act_type.name like ? or artName like ?)",
+                    array("%$word%", "%$word%", "%$word%"));
 }
 $acts = $query->limit(AUTOCOMPLETE_LIMIT)->find_many();
 
