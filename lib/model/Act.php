@@ -109,6 +109,11 @@ class Act extends BaseObject {
       $av->delete();
     }
 
+    $actAuthors = Model::factory('ActAuthor')->where('actId', $this->id)->find_many();
+    foreach ($actAuthors as $aa) {
+      $aa->delete();
+    }
+
     $oldId = $this->id;
     parent::delete();
     ActReference::reconvertReferringActVersions($oldId);

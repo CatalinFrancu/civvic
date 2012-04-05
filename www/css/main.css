@@ -118,7 +118,20 @@ table.ui-jqgrid-btable {
 }
 
 textarea {
-  width: 100%;
+  vertical-align: text-top;
+  width: 90%;
+}
+
+/** Editable forms **/
+
+#template table.editForm th, #template table.editForm td {
+  border: 0px;
+  vertical-align: text-top;
+}
+
+div.authorWrapper {
+  border: 1px solid #ddd;
+  margin-bottom: 5px;
 }
 
 /* Disabled inputs don't get submitted, which we don't want. However, readonly elements are white by default, which is misleading */
@@ -159,15 +172,32 @@ div.actDetails {
   margin-bottom: 10px;
 }
 
-div.actDetails ul {
+div.actDetails ul.attributes {
   padding: 0px;
   margin: 0px;
 }
 
-div.actDetails ul li {
+div.actDetails ul.attributes li {
   display: inline;
   list-style-type: none;
   padding-right: 10px;
+}
+
+div.actDetails ul.authors {
+  padding: 0px;
+  margin: 0px;
+}
+
+div.actDetails ul.authors li {
+  list-style-type: none;
+  padding-right: 10px;
+}
+
+div.actDetails div.signatureNote {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  display: none;
+  padding-left: 20px;
 }
 
 .actEditLinks {
@@ -303,9 +333,6 @@ div.errorType {
 }
 
 /** act versions **/
-
-table.actVersionTable {
-}
 
 table.actVersionTable th, table.actVersionTable td {
   border: 1px solid #777;

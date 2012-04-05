@@ -11,6 +11,8 @@ $number = Util::getRequestParameter('number');
 $issueDate = Util::getRequestParameter('issueDate');
 $actTypeId = Util::getRequestParameter('actTypeId');
 $authors = Util::getRequestParameter('authors');
+$signatureTypes = Util::getRequestParameter('signatureTypes');
+$notes = Util::getRequestParameter('notes');
 $monitorId = Util::getRequestParameter('monitorId');
 $placeId = Util::getRequestParameter('placeId');
 $comment = Util::getRequestParameter('comment');
@@ -70,7 +72,7 @@ if ($submitButton) {
   $act->comment = $comment;
   if ($act->validate()) {
     $act->save();
-    ActAuthor::saveAuthors($act->id, $authors);
+    ActAuthor::saveAuthors($act->id, $authors, $signatureTypes, $notes);
     FlashMessage::add('Datele au fost salvate.', 'info');
     Util::redirect("editare-act?id={$act->id}");
   }
@@ -83,7 +85,9 @@ if ($act->id) {
 SmartyWrap::assign('act', $act);
 SmartyWrap::assign('actTypes', Model::factory('ActType')->order_by_asc('name')->find_many());
 SmartyWrap::assign('actVersions', Model::factory('ActVersion')->where('actId', $act->id)->order_by_asc('versionNumber')->find_many());
-SmartyWrap::assign('authors', $actAuthors = Author::getForActId($act->id));
+SmartyWrap::assign('actAuthors', Model::factory('ActAuthor')->where('actId', $act->id)->order_by_asc('rank')->find_many());
+SmartyWrap::assign('signatureTypes', ActAuthor::$signatureTypes);
+SmartyWrap::assign('authors', Author::getForActId($act->id));
 SmartyWrap::assign('monitors', Model::factory('Monitor')->order_by_asc('year')->order_by_asc('number')->find_many());
 SmartyWrap::assign('places', Model::factory('Place')->order_by_asc('name')->find_many());
 SmartyWrap::assign('pageTitle', $act->id ? "Act: $act->name" : 'Act');

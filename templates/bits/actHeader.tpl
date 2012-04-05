@@ -1,22 +1,26 @@
-{* Parameters: $act $actType=null $authors=null $monitor=null $versions $shownAv $editLinks=false *}
+{* Parameters: $act $actType=null $monitor=null $authors=null $actAuthors=null $versions $shownAv $editLinks=false *}
 {assign var="editLinks" value=$editLinks|default:false}
 <div class="actTitle">{$act->name}</div>
 <div class="actDetails">
-  <ul>
+  <ul class="attributes">
     {if $actType}<li>tipul: <b>{$actType->name}</b>{/if}
     {if $act->number}<li>numărul: <b>{$act->number} / {$act->year}</b></li>{/if}
     {if $act->issueDate}<li>data: <b>{$act->issueDate|date_format:"%e %B %Y"}</b></li>{/if}
     {if $monitor}<li>publicat în <a href="monitor?id={$monitor->id}">Monitorul Oficial {$monitor->number} / {$monitor->year}</a></li>{/if}
   </ul>
 
-  {if $authors}
-    <div class="author">
-      {if count($authors) > 1}autori:<br/>{else}autor: {/if}
-      {foreach from=$authors item=author}
-        <b>{$author->getDisplayName()}</b><br/>
-      {/foreach}
-    </div>
-  {/if}
+  <ul class="authors">
+    {foreach from=$authors item=author key=i}
+      {assign var=aa value=$actAuthors.$i}
+      <li>
+        {$aa->getSignatureTypeName()}: <b>{$author->getDisplayName()}</b>
+        {if $aa->note}
+          <a href="#" onclick="$(this).next('.signatureNote').slideToggle(); return false">notă</a>
+          <div class="signatureNote">{$aa->note}</div>
+        {/if}
+      </li>
+    {/foreach}
+  </ul>
 
   {if count($versions) > 1}
     <form action="act">

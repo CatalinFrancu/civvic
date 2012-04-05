@@ -17,7 +17,7 @@
   </div>
 
   {foreach from=$acts item=act key=i}
-    {include file=bits/actHeader.tpl act=$act actType=$actTypes.$i monitor=null authors=$authorMatrix.$i}
+    {include file=bits/actHeader.tpl act=$act actType=$actTypes.$i monitor=null authors=$authorMatrix.$i actAuthors=$actAuthorMatrix.$i}
     {$actVersions.$i->htmlContents}
   {/foreach}
 {/if}

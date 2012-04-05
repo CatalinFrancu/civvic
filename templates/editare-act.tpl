@@ -10,17 +10,50 @@
   {if $act->id}
     <input type="hidden" name="id" value="{$act->id}"/>
   {/if}
-  Tip: {include file="bits/actTypeDropdown.tpl" name="actTypeId" actTypes=$actTypes selected=$act->actTypeId autofocus=true}&nbsp;
-  număr: <input type="text" name="number" value="{$act->number}" size="4"/>&nbsp;
-  an: <input type="text" name="year" value="{$act->year}" size="4"/><br/>
-  Nume: <input type="text" name="name" value="{$act->name}" size="80" autocomplete="off"/><br/>
-  Data: {include file="bits/datePicker.tpl" id="issueDate" name="issueDate" value=$act->issueDate}<br/>
-  Autor(i): {include file="bits/authorAutocompleteMultiple.tpl" name="authors" authors=$authors}<br/>
-  Publicat în {include file=bits/monitorDropdown.tpl name="monitorId" monitors=$monitors selected=$act->monitorId}<br/>
-  Locul: {include file=bits/placeDropdown.tpl name="placeId" places=$places selected=$act->placeId}<br/>
-  Comentariu: <br/>
-  <textarea name="comment" rows="3">{$act->comment}</textarea><br/>
-  <input type="submit" name="submitButton" value="Salvează"/>
+  <table class="editForm">
+    <tr>
+      <td>nume:</td>
+      <td><input type="text" name="name" value="{$act->name}" size="80" autocomplete="off"/></td>
+    </tr>
+    <tr>
+      <td>tip:</td>
+      <td>{include file="bits/actTypeDropdown.tpl" name="actTypeId" actTypes=$actTypes selected=$act->actTypeId autofocus=true}</td>
+    </tr>
+    <tr>
+      <td>număr/an:</td>
+      <td>
+        <input type="text" name="number" value="{$act->number}" size="4"/> /
+        <input type="text" name="year" value="{$act->year}" size="4"/>
+      </td>
+    </tr>
+    <tr>
+      <td>data:</td>
+      <td>{include file="bits/datePicker.tpl" id="issueDate" name="issueDate" value=$act->issueDate}</td>
+    </tr>
+    <tr>
+      <td>autor(i):</td>
+      <td>
+        {include file=bits/authorDynamic.tpl authorName="authors" signatureTypeName="signatureTypes" noteName="notes"
+        authors=$authors signatureTypes=$signatureTypes}
+      </td>
+    </tr>
+    <tr>
+      <td>publicat în</td>
+      <td>{include file=bits/monitorDropdown.tpl name="monitorId" monitors=$monitors selected=$act->monitorId}</td>
+    </tr>
+    <tr>
+      <td>locul:</td>
+      <td>{include file=bits/placeDropdown.tpl name="placeId" places=$places selected=$act->placeId}</td>
+    </tr>
+    <tr>
+      <td>comentariu:</td>
+      <td><textarea name="comment" rows="3">{$act->comment}</textarea></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><input type="submit" name="submitButton" value="Salvează"/></td>
+    </tr>
+  </table>
 </form>
 
 <br/>
