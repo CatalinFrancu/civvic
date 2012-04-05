@@ -194,6 +194,7 @@ div.actDetails ul.authors li {
 }
 
 div.actDetails div.signatureNote {
+  background: #eee;
   border: 1px solid #ccc;
   border-radius: 6px;
   display: none;
