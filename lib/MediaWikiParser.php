@@ -484,6 +484,12 @@ class MediaWikiParser {
                                                       'position' => array('Prim-ministru', array()))),
                                           2, 3, 4, range(1, 4));
       break;
+    case 'SemnPr':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('name' => array('%s', array(1)),
+                                                      'position' => array('Președintele României', array()))),
+                                          2, 3, 4, range(1, 4));
+      break;
     case 'SemnCfsn':
       $result = self::parseSignatureParts($line, $parts,
                                           array(array('name' => array('', array()),
@@ -529,6 +535,19 @@ class MediaWikiParser {
       $result['notes'][1] = sprintf("Această lege a fost adoptată de Adunarea Deputaților în ședința din %s.", $parts['dataAd']);
       $result['notes'][2] = sprintf("În temeiul art. 82 lit. m) din Decretul-lege nr. 92/1990 pentru alegerea parlamentului și a Președintelui " .
                                     "României, promulgăm %s și dispunem publicarea sa în Monitorul Oficial al României.", $parts['numeLege']);
+      break;
+    case 'SemnDecret':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('name' => array('%s', array('presRom')),
+                                                      'position' => array('Președintele României', array())),
+                                                array('name' => array('%s', array('primMin')),
+                                                      'position' => array('Prim-ministru', array()))),
+                                          'oras', 'dataSem', 'nrDec',
+                                          array('presRom', 'primMin', 'dataSem', 'nrDec'),
+                                          array('oras' => 'București'));
+      $result['signatureTypes'][1] = ActAuthor::$COUNTERSIGNED;
+      $result['notes'][1] = "În temeiul art. 82 alin. 2 din Decretul-lege nr. 92/1990 pentru alegerea parlamentului și a Președintelui României, " .
+        "contrasemnăm acest decret.";
       break;
     default:
       FlashMessage::add(sprintf("Nu știu să interpretez semnături de tipul {{%s}}.", $parts[0]));
