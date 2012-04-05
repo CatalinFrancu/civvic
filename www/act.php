@@ -14,6 +14,16 @@ if ($version) {
 }
 $actType = ActType::get_by_id($act->actTypeId);
 
+$referringActs = Model::factory('Act')
+  ->select('act.*')
+  ->distinct()
+  ->join('act_version', 'act_version.actId = act.id')
+  ->join('act_reference', 'act_reference.actVersionId = act_version.id')
+  ->where('referredActId', $act->id)
+  ->order_by_asc('year')
+  ->order_by_asc('issueDate')
+  ->find_many();
+
 SmartyWrap::assign('act', $act);
 SmartyWrap::assign('shownAv', $shownAv);
 SmartyWrap::assign('modifyingAct', Act::get_by_id($shownAv->modifyingActId));
@@ -22,6 +32,7 @@ SmartyWrap::assign('actType', $actType);
 SmartyWrap::assign('monitor', Monitor::get_by_id($act->monitorId));
 SmartyWrap::assign('authors', Author::getForActId($act->id));
 SmartyWrap::assign('actAuthors', Model::factory('ActAuthor')->where('actId', $act->id)->order_by_asc('rank')->find_many());
+SmartyWrap::assign('referringActs', $referringActs);
 SmartyWrap::assign('pageTitle', "{$actType->artName} {$act->number} / {$act->year}");
 SmartyWrap::display('act.tpl');
 
