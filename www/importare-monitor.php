@@ -15,7 +15,7 @@ if ($submitButton) {
     $monitor = $data['monitor'];
     $acts = $data['acts'];
     $actVersions = $data['actVersions'];
-    $authorIdMatrix = $data['authorIds'];
+    $actAuthorMatrix = $data['actAuthors'];
 
     if ($previewedNumber == $number && $previewedYear == $year) {
       $monitor->save();
@@ -27,10 +27,8 @@ if ($submitButton) {
         $av->save();
 
         $rank = 1;
-        foreach ($authorIdMatrix[$i] as $authorId) {
-          $aa = Model::factory('ActAuthor')->create();
+        foreach ($actAuthorMatrix[$i] as $aa) {
           $aa->actid = $act->id;
-          $aa->authorId = $authorId;
           $aa->rank = $rank++;
           $aa->save();
         }
@@ -41,10 +39,10 @@ if ($submitButton) {
     }
 
     $authorMatrix = array();
-    foreach ($authorIdMatrix as $authorIds) {
+    foreach ($actAuthorMatrix as $actAuthors) {
       $authors = array();
-      foreach ($authorIds as $authorId) {
-        $authors[] = Author::get_by_id($authorId);
+      foreach ($actAuthors as $aa) {
+        $authors[] = Author::get_by_id($aa->authorId);
       }
       $authorMatrix[] = $authors;
     }
@@ -63,6 +61,7 @@ if ($submitButton) {
     SmartyWrap::assign('acts', $acts);
     SmartyWrap::assign('actTypes', $actTypes);
     SmartyWrap::assign('actVersions', $actVersions);
+    SmartyWrap::assign('actAuthorMatrix', $actAuthorMatrix);
     SmartyWrap::assign('authorMatrix', $authorMatrix);
     FlashMessage::add("Această pagină este o previzualizare. Dacă totul arată bine, apăsați din nou butonul 'Importă'.", 'warning');
   }

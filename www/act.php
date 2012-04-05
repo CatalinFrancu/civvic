@@ -21,6 +21,7 @@ SmartyWrap::assign('versions', $shownAv = Model::factory('ActVersion')->where('a
 SmartyWrap::assign('actType', $actType);
 SmartyWrap::assign('monitor', Monitor::get_by_id($act->monitorId));
 SmartyWrap::assign('authors', Author::getForActId($act->id));
+SmartyWrap::assign('actAuthors', Model::factory('ActAuthor')->where('actId', $act->id)->order_by_asc('rank')->find_many());
 SmartyWrap::assign('pageTitle', "{$actType->artName} {$act->number} / {$act->year}");
 SmartyWrap::display('act.tpl');
 
