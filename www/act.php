@@ -24,6 +24,9 @@ $referringActs = Model::factory('Act')
   ->order_by_asc('issueDate')
   ->find_many();
 
+$collidingActs = Model::factory('act')->where('actTypeId', $act->actTypeId)->where('number', $act->number)->where('year', $act->year)
+  ->where_not_equal('id', $act->id)->find_many();
+
 SmartyWrap::assign('act', $act);
 SmartyWrap::assign('shownAv', $shownAv);
 SmartyWrap::assign('modifyingAct', Act::get_by_id($shownAv->modifyingActId));
@@ -33,6 +36,7 @@ SmartyWrap::assign('monitor', Monitor::get_by_id($act->monitorId));
 SmartyWrap::assign('authors', Author::getForActId($act->id));
 SmartyWrap::assign('actAuthors', Model::factory('ActAuthor')->where('actId', $act->id)->order_by_asc('rank')->find_many());
 SmartyWrap::assign('referringActs', $referringActs);
+SmartyWrap::assign('collidingActs', $collidingActs);
 SmartyWrap::assign('pageTitle', "{$actType->artName} {$act->number} / {$act->year}");
 SmartyWrap::display('act.tpl');
 
