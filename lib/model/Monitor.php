@@ -3,13 +3,14 @@
 class Monitor extends BaseObject {
 
   function getPdfNumber() {
+    $s = str_replace(' ', '', $this->number);
     // Count digits (ignore suffixes like "bis")
-    $len = mb_strlen($this->number);
+    $len = mb_strlen($s);
     $i = 0;
-    while ($i < $len && ctype_digit($this->number[$i])) {
+    while ($i < $len && ctype_digit($s[$i])) {
       $i++;
     }
-    return str_repeat('0', 4 - $i) . $this->number;
+    return str_repeat('0', 4 - $i) . $s;
   }
 
   /** Returns false on all errors (including when the file does not exist). **/

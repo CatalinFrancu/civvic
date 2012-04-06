@@ -43,7 +43,7 @@ if ($submitButton) {
   if ($m->validate()) {
     $m->save();
     FlashMessage::add('Datele au fost salvate.', 'info');
-    Util::redirect('monitoare');
+    Util::redirect("monitor?id={$m->id}");
   }
 }
 
