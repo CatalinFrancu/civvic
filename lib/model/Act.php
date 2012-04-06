@@ -151,6 +151,17 @@ class Act extends BaseObject {
     return $map;
   }
 
+  /* Get the next available FNxxx number. */
+  static function getNextFnSlot() {
+    $acts = Model::factory('Act')->where_like('number', 'FN%')->find_many();
+    $max = 0;
+    foreach ($acts as $act) {
+      $d = (int)substr($act->number, 2);
+      $max = max($max, $d);
+    }
+    return 'FN' . ($max + 1);
+  }
+
   function delete() {
     $count = Model::factory('ActVersion')->where_not_equal('actId', $this->id)->where('modifyingActId', $this->id)->count();
     if ($count) {
