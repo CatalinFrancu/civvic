@@ -2,21 +2,6 @@
 
 class Author extends BaseObject {
 
-  private static function _cmpDisplayName($a, $b) {
-    $dna = $a->getDisplayName();
-    $dnb = $b->getDisplayName();
-    if ($a == $b) {
-      return 0;
-    }
-    return ($a < $b) ? -1 : 1;
-  }
-
-  static function loadAllOrderByDisplayName() {
-    $authors = Model::factory('Author')->find_many();
-    usort($authors, 'self::_cmpDisplayName');
-    return $authors;
-  }
-
   static function loadAllMapByDisplayName() {
     $authors = Model::factory('Author')->find_many();
     $map = array();
