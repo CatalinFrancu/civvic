@@ -29,7 +29,7 @@ class MediaWikiParser {
         if ($regexp) {
           $regexp = "/(?<!-){$regexp}(?!<\\/a)/i";
           $regexp = str_replace('NUMBER', '(?P<number>[-0-9A-Za-z.]+)', $regexp);
-          $regexp = str_replace('DATE', "(\\d{1,2}\\s+({$months})\\s+)?(?P<year>\\d{4})", $regexp);
+          $regexp = str_replace('DATE', "((?P<day>\\d{1,2})\\s+(?P<month>{$months})\\s+)?(?P<year>\\d{4})", $regexp);
 
           $matches = array();
           preg_match_all($regexp, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
@@ -38,17 +38,28 @@ class MediaWikiParser {
             $position = $match[0][1];
             $number = $match['number'][0];
             $year = $match['year'][0];
+            $day = array_key_exists('day', $match) ? $match['day'][0] : 0;
+            $month = array_key_exists('month', $match) ? (1 + array_search($match['month'][0], StringUtil::$months)) : 0;
 
             if ($position && $text[$position - 1] == '@') {
               $text = substr($text, 0, $position - 1) . substr($text, $position);
             } else {
-              $link = Act::getLink($at->id, $number, $year, $linkText);
+              $act = Act::get_by_id($actVersion->actId);
+
+              $ref = Model::factory('ActReference')->create();
+              $ref->actTypeId = $at->id;
+              $ref->number = $number;
+              $ref->year = $year;
+              $ref->issueDate = ($day && $month) ? sprintf("%d-%02d-%02d", $year, $month, $day) : null;
+
+              $referredAct = Act::getReferredAct($ref, $act->estimateIssueDate());
+              if ($referredAct) {
+                $ref->referredActId = $referredAct->id;
+              }
+
+              $link = Act::getLink($referredAct, $ref, $linkText);
               $text = substr($text, 0, $position) . $link . substr($text, $position + strlen($linkText));
               if ($actReferences !== null) {
-                $ref = Model::factory('ActReference')->create();
-                $ref->actTypeId = $at->id;
-                $ref->number = $number;
-                $ref->year = $year;
                 $actReferences[] = $ref;
               }
             }

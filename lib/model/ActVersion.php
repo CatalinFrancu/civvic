@@ -162,7 +162,25 @@ class ActVersion extends BaseObject {
       MonitorReference::saveByActVersionId($monitorReferences, $this->id);
     }
     if ($validityChanged) {
-      ActReference::reconvertReferringActVersions($this->actId);
+      // The act references haven't changed, but the link class might have
+      ActVersion::reconvertByReferredActId($this->actId);
+    }
+  }
+
+  static function reconvertByReferredActId($referredActId) {
+    $actVersionIdMap = array();
+    $refs = ActReference::get_all_by_referredActId($referredActId);
+    foreach ($refs as $ref) {
+      $actVersionIdMap[$ref->actVersionId] = true;
+    }
+    ActVersion::reconvertMap($actVersionIdMap);
+  }
+
+  static function reconvertMap($actVersionIdMap) {
+    foreach ($actVersionIdMap as $actVersionId => $ignored) {
+      $av = ActVersion::get_by_id($actVersionId);
+      $av->htmlContents = MediaWikiParser::wikiToHtml($av);
+      $av->save(); // Note that we haven't touched $av->contents
     }
   }
 
@@ -189,14 +207,15 @@ class ActVersion extends BaseObject {
     }
 
     ActReference::deleteByActVersionId($this->id);
+    MonitorReference::deleteByActVersionId($this->id);
 
     $wasCurrent = $this->current;
-    $actId = $this->actId;
+    $oldActId = $this->actId;
     parent::delete();
 
     if ($wasCurrent) {
-      // The current version for this act has changed, so reconvert the references
-      ActReference::reconvertReferringActVersions($actId);
+      // The act references haven't changed, but the link class might have
+      ActVersion::reconvertByReferredActId($oldActId);
     }
     return true;
   }

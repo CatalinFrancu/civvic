@@ -18,20 +18,25 @@ class Act extends BaseObject {
       FlashMessage::add('Actul trebuie să aibă un tip.');
     }
     if ($this->year && $this->number) {
-      $otherAct = Model::factory('Act')->where('actTypeId', $this->actTypeId)->where('year', $this->year)->where('number', $this->number)->find_one();
+      $otherAct = Model::factory('Act')->where('actTypeId', $this->actTypeId)->where('year', $this->year)->where('number', $this->number);
+      $otherAct = $this->issueDate
+        ? $otherAct->where('issueDate', $this->issueDate)
+        : $otherAct->where_null('issueDate');
+      $otherAct = $otherAct->find_one();
       if ($otherAct && $otherAct->id != $this->id) {
-        FlashMessage::add('Există deja un act cu acest tip, număr și an.');
+        FlashMessage::add('Există deja un act cu acest tip, număr, an și dată.');
       }
     }
     return !FlashMessage::getMessage();
   }
 
   function save() {
+    $needsReassociation = $this->is_dirty('actTypeId') || $this->is_dirty('number') || $this->is_dirty('year') || $this->is_dirty('issueDate');
     if ($this->issueDate == '') {
       $this->issueDate = null;
     }
-    if ($this->id) {
-      ActReference::unassociateByReferredActId($this->id);
+    if ($needsReassociation) {
+      $oldAct = Act::get_by_id($this->id);
     }
     parent::save();
     // The HTML has changed for all the actVersions this act modifies, and all future versions from those acts
@@ -43,8 +48,15 @@ class Act extends BaseObject {
         $av->save();
       }
     }
-    ActReference::associateReferredAct($this);
-    ActReference::reconvertReferringActVersions($this->id);
+
+    if ($needsReassociation) {
+      $actVersionIdMap = array();
+      if ($oldAct) {
+        ActReference::reassociate($oldAct->actTypeId, $oldAct->number, $oldAct->year, $actVersionIdMap);
+      }
+      ActReference::reassociate($this->actTypeId, $this->number, $this->year, $actVersionIdMap);
+      ActVersion::reconvertMap($actVersionIdMap);
+    }
   }
 
   function countVersions() {
@@ -74,13 +86,55 @@ class Act extends BaseObject {
     return ($version && $version->status == ACT_STATUS_VALID) ? 'valid' : 'repealed';
   }
 
-  static function getLink($actTypeId, $number, $year, $text) {
-    // See if we have an act with these parameters
-    $act = Model::factory('Act')->where('actTypeId', $actTypeId)->where('number', $number)->where('year', $year)->find_one();
+  function estimateIssueDate() {
+    if ($this->issueDate) {
+      return $this->issueDate;
+    }
+    $monitor = Monitor::get_by_id($this->monitorId);
+    if ($monitor && $monitor->issueDate) {
+      return $monitor->issueDate;
+    }
+    return "{$this->year}-12-31";
+  }
 
+  /**
+   * Returns the most likely act with the given actTypeId, number and year. When there are multiple matches:
+   * - When a specific issueDate is given,
+   *   - Return the act with the exact issueDate if it exists
+   *   - Return any act with a null issueDate if one exists
+   *   - Return null (do not return any act with a different issueDate)
+   * - When no specific issueDate is given,
+   *   - Return the act with the largest issueDate lower than the referring act's issueDate if one exists
+   *   - Return any act with a null issueDate if one exists
+   *   - Return the act with the smallest issueDate
+   **/
+  static function getReferredAct($ar, $referringIssueDate) {
+    if ($ar->issueDate) {
+      $act = Model::factory('Act')->where('actTypeId', $ar->actTypeId)->where('number', $ar->number)->where('year', $ar->year)
+        ->where('issueDate', $ar->issueDate)->find_one();
+      if (!$act) {
+        $act = Model::factory('Act')->where('actTypeId', $ar->actTypeId)->where('number', $ar->number)->where('year', $ar->year)
+          ->where_null('issueDate')->find_one();
+      }
+    } else {
+      $act = Model::factory('Act')->where('actTypeId', $ar->actTypeId)->where('number', $ar->number)->where('year', $ar->year)
+        ->where_lte('issueDate', $referringIssueDate)->order_by_desc('issueDate')->find_one();
+      if (!$act) {
+        $act = Model::factory('Act')->where('actTypeId', $ar->actTypeId)->where('number', $ar->number)->where('year', $ar->year)
+          ->where_null('issueDate')->find_one();
+      }
+      if (!$act) {
+        $act = Model::factory('Act')->where('actTypeId', $ar->actTypeId)->where('number', $ar->number)->where('year', $ar->year)
+          ->order_by_asc('issueDate')->find_one();
+      }
+    }
+    return $act;
+  }
+
+  static function getLink($act, $actReference, $text) {
     if (!$act) {
       return sprintf('<a class="actLink undefined" href="http://civvic.ro/act-inexistent?data=%s:%s:%s">%s</a>',
-                     $actTypeId, $number, $year, $text);
+                     $actReference->actTypeId, $actReference->number, $actReference->year, $text);
     }
 
     $class = $act->getDisplayClass();
@@ -114,10 +168,11 @@ class Act extends BaseObject {
       $aa->delete();
     }
 
-    $oldId = $this->id;
+    $oldAct = Act::get($this->id);
     parent::delete();
-    ActReference::reconvertReferringActVersions($oldId);
-    ActReference::unassociateByReferredActId($oldId);
+    $actVersionIdMap = array();
+    ActReference::reassociate($oldAct->actTypeId, $oldAct->number, $oldAct->year, $actVersionIdMap);
+    ActVersion::reconvertMap($actVersionIdMap);
     return true;
   }
 }
