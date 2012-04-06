@@ -63,10 +63,18 @@ if ($addVersionButton) {
 
 if ($submitButton) {
   $act->name = $name;
-  $act->year = $year;
-  $act->number = $number;
-  $act->issueDate = $issueDate;
-  $act->actTypeId = $actTypeId;
+  if ($year != $act->year) {
+    $act->year = $year;
+  }
+  if ($number != $act->number) {
+    $act->number = $number;
+  }
+  if ($issueDate != $act->issueDate) {
+    $act->issueDate = $issueDate;
+  }
+  if ($actTypeId != $act->actTypeId) {
+    $act->actTypeId = $actTypeId;
+  }
   $act->monitorId = $monitorId;
   $act->placeId = $placeId;
   $act->comment = $comment;
