@@ -1,7 +1,8 @@
-{* Parameters: $name $selected=null $autofocus=false $refFieldName=null *}
+{* Parameters: $name $selected=null $autofocus=false $refFieldName=null $submitOnSelect=false *}
 {assign var="selected" value=$selected|default:null}
 {assign var="autofocus" value=$autofocus|default:false}
 {assign var="refFieldName" value=$refFieldName|default:null}
+{assign var="submitOnSelect" value=$submitOnSelect|default:false}
 <input type="hidden" id="{$name}_hidden" name="{$name}" value="{$selected->id}"/>
 {if $refFieldName}
   <input type="hidden" id="{$name}_ref" name="{$refFieldName}" value=""/>
@@ -23,6 +24,11 @@
     select: function (event, ui) {
       $('#{/literal}{$name}{literal}_hidden').val(ui.item.id);
       $('#{/literal}{$name}{literal}_ref').val(ui.item.ref);
+      {/literal}
+      {if $submitOnSelect}
+        $('#{$name}_hidden').closest('form').submit();
+      {/if}
+      {literal}
     },
     change: function (event, ui) {
       if (ui.item) {
