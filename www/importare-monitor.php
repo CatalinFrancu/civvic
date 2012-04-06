@@ -21,6 +21,9 @@ if ($submitButton) {
       $monitor->save();
       foreach ($acts as $i => $act) {
         $act->monitorId = $monitor->id();
+        if (!$act->number) {
+          $act->number = Act::getNextFnSlot();
+        }
         $act->save();
         $av = $actVersions[$i];
         $av->actId = $av->modifyingActId = $act->id;

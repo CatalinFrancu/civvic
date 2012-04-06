@@ -531,6 +531,22 @@ class MediaWikiParser {
                                                       'position' => array('Președintele Senatului', array()))),
                                           2, 3, 4, range(1, 4));
       break;
+    case 'SemnPsPad':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('concat(title, " ", name)' => array('%s', array(1)),
+                                                      'position' => array('Președintele Senatului', array())),
+                                                array('name' => array('%s', array(2)),
+                                                      'position' => array('Președintele Adunării Deputaților', array()))),
+                                          3, 4, 5, range(1, 5));
+      break;
+    case 'SemnPsPad-fd':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('concat(title, " ", name)' => array('%s', array(1)),
+                                                      'position' => array('Președintele Senatului', array())),
+                                                array('name' => array('%s', array(2)),
+                                                      'position' => array('Președintele Adunării Deputaților', array()))),
+                                          null, null, null, range(1, 2));
+      break;
     case 'SemnLege':
       $result = self::parseSignatureParts($line, $parts,
                                           array(array('concat(title, " ", name)' => array('%s', array('presSenat')),
@@ -609,21 +625,34 @@ class MediaWikiParser {
       $data['authorIds'][] = $author->id;
     }
 
-    $place = Place::get_by_name($parts[$placeNameField]);
-    if (!$place) {
-      FlashMessage::add(sprintf("Trebuie definit locul '%s'.", $parts[$placeNameField]));
-      return false;
+    if ($placeNameField) {
+      $place = Place::get_by_name($parts[$placeNameField]);
+      if (!$place) {
+        FlashMessage::add(sprintf("Trebuie definit locul '%s'.", $parts[$placeNameField]));
+        return false;
+      }
+      $data['placeId'] = $place->id;
+    } else {
+      $data['placeId'] = null;
     }
-    $data['placeId'] = $place->id;
 
-    $issueDate = StringUtil::parseRomanianDate($parts[$issueDateField]);
-    if (!$issueDate) {
-      FlashMessage::add(sprintf("Data '%s' este incorectă.", $parts[$issueDateField]));
-      return false;
+    if ($issueDateField) {
+      $issueDate = StringUtil::parseRomanianDate($parts[$issueDateField]);
+      if (!$issueDate) {
+        FlashMessage::add(sprintf("Data '%s' este incorectă.", $parts[$issueDateField]));
+        return false;
+      }
+      $data['issueDate'] = $issueDate;
+    } else {
+      $data['issueDate'] = null;
     }
-    $data['issueDate'] = $issueDate;
 
-    $data['number'] = $parts[$actNumberField];
+    if ($actNumberField) {
+      $data['number'] = $parts[$actNumberField];
+    } else {
+      $data['number'] = '';
+      FlashMessage::add("Semnăturile de tip {{{$parts[0]}}} nu includ numărul actului. Voi atribui automat un număr de tip FN.", 'warning');      
+    }
     $data['signatureTypes'] = array_fill(0, count($authorSpecs), ActAuthor::$SIGNED);
     $data['notes'] = array_fill(0, count($authorSpecs), '');
     return $data;
