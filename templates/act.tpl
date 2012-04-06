@@ -7,14 +7,38 @@
   </div>
 {/if}
 
+{if $referringActs || $collidingActs}
+  <div class="relatedActLinks">
+    {if $referringActs}
+      <a class="referringActLink" href="#" onclick="$('#referringActList').toggle(); return false">acte care menționează acest act</a>
+    {/if}
+    {if $collidingActs}
+      <a class="collidingActLink" href="#" onclick="$('#collidingActList').toggle(); return false">acte cu același nume</a>
+    {/if}
+  </div>
+{/if}
+
+
 {if $referringActs}
-  <div class="referringActs">
-    <a href="#" onclick="$(this).next('ul').toggle(); return false">acte care menționează acest act</a>
+  <div id="referringActList" class="relatedActList">
+    <p>Acte care menționează acest act:</p>
     <ul>
-      {foreach from=$referringActs item=ra}
-        <li>{include file=bits/actLink.tpl act=$ra}</li>
+      {foreach from=$referringActs item=a}
+        <li>{include file=bits/actLink.tpl act=$a}</li>
       {/foreach}
     </ul>
   </div>
 {/if}
+
+{if $collidingActs}
+  <div id="collidingActList" class="relatedActList">
+    <p>Acte cu același nume:</p>
+    <ul>
+      {foreach from=$collidingActs item=a}
+        <li>{include file=bits/actLink.tpl act=$a}</li>
+      {/foreach}
+    </ul>
+  </div>
+{/if}
+
 {$shownAv->htmlContents}
