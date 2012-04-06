@@ -52,7 +52,7 @@ class MediaWikiParser {
               $ref->year = $year;
               $ref->issueDate = ($day && $month) ? sprintf("%d-%02d-%02d", $year, $month, $day) : null;
 
-              $referredAct = Act::getReferredAct($ref, $act->estimateIssueDate());
+              $referredAct = Act::getReferredAct($ref, $act ? $act->estimateIssueDate() : null);
               if ($referredAct) {
                 $ref->referredActId = $referredAct->id;
               }
