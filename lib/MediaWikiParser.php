@@ -293,7 +293,7 @@ class MediaWikiParser {
   // Returns false and sets flash messages on all errors.
   static function importMonitor($number, $year) {
     // Check that we don't already have this monitor
-    $monitor = Model::factory('Monitor')->where('number', $number)->where('year', $year)->find_one();
+    $monitor = Monitor::get_by_number_year($number, $year);
     if ($monitor) {
       FlashMessage::add("Monitorul {$number}/{$year} a fost deja importat (sau există în sistem din alt motiv).");
       return false;
@@ -441,10 +441,13 @@ class MediaWikiParser {
           }
 
           if ($act->year && $act->number) {
-            $other = Model::factory('Act')->where('actTypeId', $act->actTypeId)->where('year', $act->year)
-              ->where('number', $act->number)->find_one();
+            $other = Act::get_by_actTypeId_year_number($act->actTypeId, $act->year, $act->number);
             if ($other) {
               FlashMessage::add(sprintf("Actul '%s' există deja.", $act->getDisplayId()), 'warning');
+            }
+            $refs = ActReference::get_all_by_actTypeId_year_number($act->actTypeId, $act->year, $act->number);
+            if (count($refs)) {
+              FlashMessage::add(sprintf("Actul '%s' este menționat în alte acte.", $act->getDisplayId()), 'warning');
             }
           }
 
@@ -613,9 +616,9 @@ class MediaWikiParser {
         foreach ($format[1] as $key) {
           $args[] = $parts[$key];
         }
-      $s = vsprintf($format[0], $args);
-      $author = $author->where_raw("$expr = '$s'");
-      $authorDetails[] = $s;
+        $s = vsprintf($format[0], $args);
+        $author = $author->where_raw("$expr = '$s'");
+        $authorDetails[] = $s;
       }
       $author = $author->find_one();
       if (!$author) {
