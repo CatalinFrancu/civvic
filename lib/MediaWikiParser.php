@@ -17,8 +17,10 @@ class MediaWikiParser {
     $text = self::insertChangeDetails($actVersion);
     $text = self::ensureReferences($text);
     $text = self::removeMonitorLinks($text);
+    $text = self::nowikiMathTags($text);
     $text = self::parse($text);
     $text = self::deleteEmptyTables($text);
+    $text = self::texToMathML($text);
 
     // Automatic links to acts
     $months = implode('|', StringUtil::$months);
@@ -235,6 +237,29 @@ class MediaWikiParser {
     $text = preg_replace("/\\[\\[Monitorul_Oficial[^|]+\\|([^\\]]+)\\]\\]/", '$1', $text, -1, $count);
     if ($count) {
       FlashMessage::add("Am eliminat {$count} legături wiki către alte monitoare.", 'warning');
+    }
+    return $text;
+  }
+
+  private static function nowikiMathTags($text) {
+    return str_replace(array('<math>', '</math>'), array('<nowiki><math>', '</math></nowiki>'), $text);
+  }
+
+  private static function texToMathML($text) {
+    $matches = array();
+    preg_match_all("/&lt;math&gt;(?<expr>.*)&lt;\\/math&gt;/U", $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+    foreach (array_reverse($matches) as $match) {
+      $position = $match[0][1];
+      $length = strlen($match[0][0]);
+      $expr = trim($match['expr'][0]);
+      file_put_contents('/tmp/civvic-math.txt', $expr);
+      exec("blahtexml --mathml < /tmp/civvic-math.txt > /tmp/civvic-mathml.txt");
+      $xml = simplexml_load_file('/tmp/civvic-mathml.txt');
+      $mathml = "";
+      foreach ($xml->mathml->markup->children() as $child) {
+        $mathml .= $child->asXml();
+      }
+      $text = substr($text, 0, $position) . "<math>$mathml</math>" . substr($text, $position + $length);
     }
     return $text;
   }
