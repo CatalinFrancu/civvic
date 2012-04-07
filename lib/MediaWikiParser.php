@@ -110,6 +110,19 @@ class MediaWikiParser {
     return (string)$page->revisions->rev[0];
   }
 
+  /** Returns an array of page titles. If you need more than 500, call botLogin() before. **/
+  static function fetchCategory($cat) {
+    $results = array();
+    $params = array('action' => 'query', 'list' => 'categorymembers', 'cmtitle' => "Categorie:$cat", 'cmlimit' => 'max', 'format' => 'xml');
+    $xmlString = Util::makePostRequest(self::$url, $params, true);
+    $xml = simplexml_load_string($xmlString);
+    var_dump(count($xml->query->categorymembers->cm));
+    foreach ($xml->query->categorymembers->cm as $cm) {
+      $results[] = (string)$cm['title'];
+    }
+    return $results;
+  }
+
   static function maybeProtectMonitor($number, $year) {
     if (self::$botName && self::$botPassword) {
       $pageTitle = "Monitorul_Oficial_{$number}/{$year}";
@@ -179,6 +192,27 @@ class MediaWikiParser {
                                 'section' => '0',
                                 'prependtext' => "{{MigrationWarning}}\n",
                                 'summary' => 'Migrat la civvic.ro',
+                                'token' => $editToken),
+                          true);
+  }
+
+  static function botSavePage($pageTitle, $contents, $summary) {
+    $xmlString = Util::makePostRequest(self::$url,
+				       array('action' => 'query',
+                                             'format' => 'xml',
+                                             'prop' => 'info',
+                                             'intoken' => 'edit',
+                                             'titles' => $pageTitle),
+				       true);
+    $xml = simplexml_load_string($xmlString);
+    $editToken = (string)$xml->query->pages->page[0]['edittoken'];
+
+    Util::makePostRequest(self::$url,
+                          array('action' => 'edit',
+                                'format' => 'xml',
+                                'title' => $pageTitle,
+                                'text' => $contents,
+                                'summary' => $summary,
                                 'token' => $editToken),
                           true);
   }
