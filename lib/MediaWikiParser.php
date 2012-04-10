@@ -30,8 +30,11 @@ class MediaWikiParser {
       foreach ($regexps as $regexp) {
         if ($regexp) {
           $regexp = "/(?<!-){$regexp}(?!<\\/a)/i";
+          $monthRegexps = array("(?P<monthName>{$months})",
+                                "(?P<monthArabic>0?1|0?2|0?3|0?4|0?5|0?6|0?7|0?8|0?9|10|11|12)",
+                                "(?P<monthRoman>I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)");
           $regexp = str_replace('NUMBER', '(?P<number>[-0-9A-Za-z.]+)', $regexp);
-          $regexp = str_replace('DATE', "((?P<day>\\d{1,2})\\s+(?P<month>{$months})\\s+)?(?P<year>\\d{4})", $regexp);
+          $regexp = str_replace('DATE', sprintf("((?P<day>\\d{1,2})(\\s+|\\.)(%s)(\\s+|\\.))?(?P<year>\\d{4})", implode('|', $monthRegexps)), $regexp);
 
           $matches = array();
           preg_match_all($regexp, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
@@ -41,7 +44,15 @@ class MediaWikiParser {
             $number = $match['number'][0];
             $year = $match['year'][0];
             $day = array_key_exists('day', $match) ? $match['day'][0] : 0;
-            $month = array_key_exists('month', $match) ? (1 + array_search($match['month'][0], StringUtil::$months)) : 0;
+            if (array_key_exists('monthName', $match) && $match['monthName'][0]) {
+              $month = 1 + array_search(strtolower($match['monthName'][0]), StringUtil::$months);
+            } else if (array_key_exists('monthArabic', $match) && $match['monthArabic'][0]) {
+              $month = (int)$match['monthArabic'][0];
+            } else if (array_key_exists('monthRoman', $match) && $match['monthRoman'][0]) {
+              $month = 1 + array_search(strtolower($match['monthRoman'][0]), StringUtil::$monthsRoman);
+            } else {
+              $month = 0;
+            }
 
             if ($position && $text[$position - 1] == '@') {
               $text = substr($text, 0, $position - 1) . substr($text, $position);
