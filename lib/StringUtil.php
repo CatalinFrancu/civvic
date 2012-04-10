@@ -3,6 +3,7 @@
 class StringUtil {
   static $months = array('ianuarie', 'februarie', 'martie', 'aprilie', 'mai', 'iunie',
                          'iulie', 'august', 'septembrie', 'octombrie', 'noiembrie', 'decembrie');
+  static $monthsRoman = array('i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii');
 
   static function startsWith($string, $substring) {
     $startString = substr($string, 0, strlen($substring));
