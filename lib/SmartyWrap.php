@@ -13,6 +13,7 @@ class SmartyWrap {
     self::assign('wwwRoot', Util::$wwwRoot);
     self::assign('user', Session::getUser());
     self::assign('moArchiveUrl', Config::get('general.moArchiveUrl'));
+    self::assign('productionMode', Config::get('general.productionMode'));
     self::addCss('main');
     self::addCss('jqueryui-smoothness');
     self::addJs('jquery');
