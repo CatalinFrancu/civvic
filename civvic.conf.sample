@@ -20,6 +20,9 @@ moArchivePath = ""
 ; Location on the web of the PDF archive
 moArchiveUrl = ""
 
+; True in production, false in development. Mainly used to hide Google Analytics code.
+productionMode = false
+
 ; Location of the smarty class file.
 ; This can be an absolute file name or relative to one of the paths in include_path
 smartyClass = "/usr/share/php/smarty/Smarty.class.php"

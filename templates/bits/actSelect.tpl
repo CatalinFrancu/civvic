@@ -1,13 +1,13 @@
 {* Parameters: $text $actType $prefix $years *}
 <form action="actDispatcher" method="get">
   {$text}
-  <select id="{$prefix}Year" name="{$prefix}Year"/>
+  <select id="{$prefix}Year" name="{$prefix}Year">
     <option value="">anul...</option>
     {foreach from=$years item=year}
       <option value="{$year}">{$year}</option>
     {/foreach}
   </select>
-  <select id="{$prefix}Number" name="actId" disabled="disabled"/>
+  <select id="{$prefix}Number" name="actId" disabled="disabled">
     <option value="">numărul...</option>
   </select>
   <input type="submit" id="{$prefix}Submit" name="{$prefix}Submit" value="Arată" disabled="disabled"/>
