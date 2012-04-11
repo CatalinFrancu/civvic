@@ -66,6 +66,7 @@ class StringUtil {
   }
 
   static function sanitize($s) {
+    $s = trim($s);
     $s = str_replace(array("\r", 'ş', 'Ş', 'ţ', 'Ţ'), array('', 'ș', 'Ș', 'ț', 'Ț'), $s);
     return $s;
   }
