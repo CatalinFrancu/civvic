@@ -56,9 +56,9 @@ class ActVersion extends BaseObject {
   function annotate($previousVersion = null) {
     $lines = explode("\n", $this->contents);
     $ann = self::getEmptyAnnotation();
-    if (!$previousVersion) {
+    if (!$previousVersion || $this->status == ACT_STATUS_REPUBLISHED) {
       $ann['lines'] = $lines;
-      $ann['history'] = array_fill(0, count($lines), 'a1');
+      $ann['history'] = array_fill(0, count($lines), 'a1'); // Hacky, but 'a' . $this->versionNumber will show in green
     } else {
       $oldAnn = json_decode($previousVersion->annotated, true);
       $diff = SimpleDiff::commonLinesDiff($oldAnn['lines'], $lines);
@@ -106,14 +106,26 @@ class ActVersion extends BaseObject {
     $ma = Act::get_by_id($this->modifyingActId);
     if (!$ma) {
       FlashMessage::add('Actul modificator nu a fost găsit.');
+    } else if ($this->versionNumber == 1 && $ma->id != $this->actId) {
+      FlashMessage::add('Pentru versiunea 1, actul modificator trebuie să fie actul însuși.');
+    } else if ($this->versionNumber > 1 && $ma->id == $this->actId) {
+      FlashMessage::add('Pentru versiuni mai mari ca 1, actul modificator nu poate fi actul însuși.');
     }
     if (!$this->status) {
       FlashMessage::add('Actul trebuie să aibă o stare.');
+    }
+    if ($this->status == ACT_STATUS_REPUBLISHED && !$this->issueDate) {
+      FlashMessage::add('Pentru republicări trebuie introdusă și data.');
+    } else if ($this->status != ACT_STATUS_REPUBLISHED && $this->issueDate) {
+      FlashMessage::add('Data este folosită numai pentru republicări.');
     }
     return !FlashMessage::getMessage();
   }
 
   function save() {
+    if ($this->issueDate == '') {
+      $this->issueDate = null;
+    }
     $contentsChanged = $this->is_dirty('contents');
     $annotatedChanged = $this->is_dirty('annotated');
     $validityChanged = $this->is_dirty('status') || $this->is_dirty('current');

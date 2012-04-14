@@ -1,4 +1,4 @@
-{* Parameters: $act $actType=null $monitor=null $authors=null $actAuthors=null $versions $shownAv $editLinks=false *}
+{* Parameters: $act $actType=null $monitor=null $authors=null $actAuthors=null $versions $shownAv $republicationDates $editLinks=false *}
 {assign var="editLinks" value=$editLinks|default:false}
 <div class="actTitle">{$act->name}</div>
 <div class="actDetails">
@@ -6,6 +6,17 @@
     {if $actType}<li>tipul: <b>{$actType->name}</b>{/if}
     {if $act->number}<li>numărul: <b>{$act->number} / {$act->year}</b></li>{/if}
     {if $act->issueDate}<li>data: <b>{$act->issueDate|date_format:"%e %B %Y"}</b></li>{/if}
+    {if count($republicationDates)}
+      <li>
+        republicat:
+        {strip}
+          {foreach from=$republicationDates item=rep key=i}
+            {if $i}, {/if}
+            <b>{$rep->issueDate|date_format:"%e %B %Y"}</b>
+          {/foreach}
+        {/strip}
+      </li>
+    {/if}
     {if $monitor}<li>publicat în <a href="monitor?id={$monitor->id}">Monitorul Oficial {$monitor->number} / {$monitor->year}</a></li>{/if}
   </ul>
 

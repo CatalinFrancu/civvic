@@ -124,6 +124,10 @@ textarea {
 
 /** Editable forms **/
 
+#template table.editForm {
+  width: 100%;
+}
+
 #template table.editForm th, #template table.editForm td {
   border: 0px;
   vertical-align: text-top;

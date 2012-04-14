@@ -5,18 +5,38 @@
 <form action="editare-versiune-act" method="post">
   <input type="hidden" name="id" value="{$av->id}"/>
 
-  Cauzată de {include file=bits/actAutocomplete.tpl name="modifyingActId" selected=$modifyingAct autofocus=true}<br/>
-
-  Starea: {include file=bits/actStatusDropdown.tpl name="status" actStatuses=$actStatuses selected=$av->status}<br/>
-
-  Conținutul: <a id="togglePreviewLink" href="#">{if $preview}ascunde HTML{else}arată HTML{/if}</a><br/>
-
-  <div id="wikiHtmlPreview" class="wikiHtmlPreview" {if !$preview}style="display: none"{/if}>{$av->htmlContents}</div>
-
-  <textarea name="contents" rows="20">{$av->contents}</textarea><br/>
-
-  <input type="submit" name="previewButton" value="Previzualizează"/>
-  <input type="submit" name="submitButton" value="Salvează"/>
+  <table class="editForm">
+    <tr>
+      <td>cauzată de:</td>
+      <td>{include file=bits/actAutocomplete.tpl name="modifyingActId" selected=$modifyingAct autofocus=true}</td>
+    </tr>
+    <tr>
+      <td>starea:</td>
+      <td>
+        {include file=bits/actStatusDropdown.tpl name="status" actStatuses=$actStatuses selected=$av->status}
+        <div id="dateDiv">
+          la data de {include file="bits/datePicker.tpl" id="issueDate" name="issueDate" value=$av->issueDate}
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>conținutul:</td>
+      <td><a id="togglePreviewLink" href="#">{if $preview}ascunde HTML{else}arată HTML{/if}</a></td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <div id="wikiHtmlPreview" class="wikiHtmlPreview" {if !$preview}style="display: none"{/if}>{$av->htmlContents}</div>
+        <textarea name="contents" rows="20">{$av->contents}</textarea><br/>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td>
+        <input type="submit" name="previewButton" value="Previzualizează"/>
+        <input type="submit" name="submitButton" value="Salvează"/>
+      </td>
+    </tr>
+  </table>
 </form>
 
 <br/>
@@ -33,5 +53,20 @@
     $('#wikiHtmlPreview').toggle('fast'); 
     $(this).text(($('#togglePreviewLink').text() == 'arată HTML') ? 'ascunde HTML' : 'arată HTML');
    });
+
+  function updateDateDivVisibility() {
+    if ($(this).val() == 3) {
+      $('#dateDiv').css('display', 'inline');
+    } else {
+      $('#dateDiv').css('display', 'none');
+      $('#dateDiv input').val('');
+    }
+  }
+
+  $('select[name="status"]').change(updateDateDivVisibility);
+
+  $(function() {
+    $('select[name="status"]').change();
+  });
   {/literal}
 </script>
