@@ -2,10 +2,12 @@
 
 define('ACT_STATUS_VALID', 1);
 define('ACT_STATUS_REPEALED', 2);
+define('ACT_STATUS_REPUBLISHED', 3); // The constant 3 is used in Javascript in editare-versiune-act.tpl
 
 class Act extends BaseObject {
   static $statuses = array(ACT_STATUS_VALID => 'valabil',
-                           ACT_STATUS_REPEALED => 'abrogat');
+                           ACT_STATUS_REPEALED => 'abrogat',
+                           ACT_STATUS_REPUBLISHED => 'republicat');
 
   function validate() {
     if (mb_strlen($this->name) < 3) {
@@ -83,7 +85,7 @@ class Act extends BaseObject {
   // Class to use when linking to this act
   function getDisplayClass() {
     $version = Model::factory('ActVersion')->select('status')->where('actId', $this->id)->where('current', true)->find_one();
-    return ($version && $version->status == ACT_STATUS_VALID) ? 'valid' : 'repealed';
+    return ($version && $version->status == ACT_STATUS_REPEALED) ? 'repealed' : 'valid';
   }
 
   function estimateIssueDate() {

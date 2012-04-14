@@ -7,6 +7,7 @@ $id = Util::getRequestParameter('id');
 $deleteId = Util::getRequestParameter('deleteId');
 $modifyingActId = Util::getRequestParameter('modifyingActId');
 $status = Util::getRequestParameter('status');
+$issueDate = Util::getRequestParameter('issueDate');
 $contents = Util::getRequestParameter('contents');
 $submitButton = Util::getRequestParameter('submitButton');
 $previewButton = Util::getRequestParameter('previewButton');
@@ -31,6 +32,7 @@ $av = ActVersion::get_by_id($id);
 if ($submitButton || $previewButton) {
   $av->modifyingActId = $modifyingActId;
   $av->status = $status;
+  $av->issueDate = $issueDate;
   $av->contents = $contents;
 }
 
