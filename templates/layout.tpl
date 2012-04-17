@@ -71,6 +71,14 @@
           <a id="openidLink" href="{$wwwRoot}auth/login">autentificare cu OpenID</a>
         {/if}
       </div>
+      <div class="clearer"></div>
+
+      {if !$user || !$user->admin}
+        <div class="leaderboard">
+          <img src="{$wwwRoot}img/nicusor-dan.gif" alt="banner Nicușor Dan"/>
+        </div>
+      {/if}
+
       {include file="bits/flashMessage.tpl"}
       <div id="template">
         {include file=$templateName}
