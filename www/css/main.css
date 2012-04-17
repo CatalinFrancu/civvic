@@ -62,9 +62,19 @@ a#openidLink {
   padding-left: 20px;
 }
 
-#template {
+div.clearer {
   clear: both;
-  padding-top: 10px;
+}
+
+div.leaderboard {
+  clear: both;
+  height: 91px;
+  margin: 5px auto 0px;
+  text-align: center;
+  width: 729px;
+}
+
+#template {
 }
 
 footer {
