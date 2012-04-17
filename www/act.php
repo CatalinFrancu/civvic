@@ -14,7 +14,7 @@ if ($version) {
 }
 $actType = ActType::get_by_id($act->actTypeId);
 
-$republicationDates = Model::factory('ActVersion')->select('issueDate')->where('status', ACT_STATUS_REPUBLISHED)
+$republicationDates = Model::factory('ActVersion')->select('issueDate')->where('actId', $act->id)->where('status', ACT_STATUS_REPUBLISHED)
   ->order_by_asc('versionNumber')->find_many();
 
 $referringActs = Model::factory('Act')
