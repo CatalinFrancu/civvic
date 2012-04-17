@@ -75,7 +75,7 @@
 
       {if !$user || !$user->admin}
         <div class="leaderboard">
-          <img src="{$wwwRoot}img/nicusor-dan.gif" alt="banner Nicușor Dan"/>
+          <a href="http://www.nicusordan.ro/"><img src="{$wwwRoot}img/nicusor-dan.gif" alt="banner Nicușor Dan"/></a>
         </div>
       {/if}
 
