@@ -375,6 +375,7 @@ class MediaWikiParser {
       FlashMessage::add("Monitorul {$number}/{$year} nu există.");
       return false;
     }
+    $contents = StringUtil::sanitize($contents);
 
     // Extract the publication date
     $regexp = sprintf("/Anul\\s+[IVXLCDM]+,?\\s+Nr\\.\\s+\\[\\[issue::\s*0*(?P<number>[-0-9A-Za-z.]+)\\]\\]\\s+-\\s+(Partea\\s+I\\s+-\\s+)?" .
