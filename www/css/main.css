@@ -340,6 +340,10 @@ span.deemphActName {
 
 /** templates converted with MediaWiki **/
 
+#template table {
+  margin-top: 5px;
+}
+
 #template table th, #template table td {
   border: 1px solid #777;
   padding: 4px;
