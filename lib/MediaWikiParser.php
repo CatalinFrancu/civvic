@@ -24,15 +24,15 @@ class MediaWikiParser {
 
     // Automatic links to acts
     $months = implode('|', StringUtil::$months);
+    $monthRegexps = array("(?P<monthName>{$months})",
+                          "(?P<monthArabic>0?1|0?2|0?3|0?4|0?5|0?6|0?7|0?8|0?9|10|11|12)",
+                          "(?P<monthRoman>I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)");
     $actTypes = Model::factory('ActType')->raw_query('select * from act_type order by length(name) desc', null)->find_many();
     foreach ($actTypes as $at) {
       $regexps = explode("\n", $at->regexps);
       foreach ($regexps as $regexp) {
         if ($regexp) {
           $regexp = "/(?<!-){$regexp}(?!<\\/a)/i";
-          $monthRegexps = array("(?P<monthName>{$months})",
-                                "(?P<monthArabic>0?1|0?2|0?3|0?4|0?5|0?6|0?7|0?8|0?9|10|11|12)",
-                                "(?P<monthRoman>I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)");
           $regexp = str_replace('NUMBER', '(?P<number>[-0-9A-Za-z.]+)', $regexp);
           $regexp = str_replace('DATE', sprintf("((?P<day>\\d{1,2})(\\s+|\\.)(%s)(\\s+|\\.))?(?P<year>\\d{4})", implode('|', $monthRegexps)), $regexp);
 
@@ -82,9 +82,8 @@ class MediaWikiParser {
     }
 
     // Automatic links to monitors
-    // Parses "din <day> <month> <year>" or "/ <year>"
-    $date = sprintf("((\\s+din\\s+(\\d{1,2})\\s+(%s)\\s+)|(\\s*\\/\\s*))(?P<year>\\d{4})", implode('|', StringUtil::$months));
-    $regexp = "/monitorul(ui)?\\s+oficial\\s+(nr\\.?)?\\s*(?P<number>[-0-9A-Za-z.]+){$date}(?!<\\/a)/i";
+    $date = sprintf("\\s*(din|\\/)\\s*(?P<day>\\d{1,2})(\\s+|\\.)(%s)(\\s+|\\.)?(?P<year>\\d{4})", implode('|', $monthRegexps));
+    $regexp = "/Monitorul(ui)?\\s+Oficial(\\s+al\\s+României)?((\\s|,)+partea\\s+(1|I)(\\s|,)+)?(\\s+nr\\.?)?\\s*(?P<number>[-0-9A-Za-z.]+){$date}/i";
     $matches = array();
     preg_match_all($regexp, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
     foreach (array_reverse($matches) as $match) {
