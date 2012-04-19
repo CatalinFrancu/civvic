@@ -16,3 +16,13 @@
      <li>{include file=bits/actLink.tpl act=$a} {$a->name}</li>
   {/foreach}
 </ul>
+
+{if $republishedActs}
+  <h3>Republicări</h3>
+
+  <ul class="actList">
+    {foreach from=$republishedActs item=a}
+       <li>{include file=bits/actLink.tpl act=$a} {$a->name}</li>
+    {/foreach}
+  </ul>
+{/if}

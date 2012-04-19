@@ -1,4 +1,4 @@
-{* Parameters: $act $actType=null $monitor=null $authors=null $actAuthors=null $versions $shownAv $republicationDates $editLinks=false *}
+{* Parameters: $act $actType=null $monitor=null $authors=null $actAuthors=null $versions $shownAv $republicationMonitors $editLinks=false *}
 {assign var="editLinks" value=$editLinks|default:false}
 <div class="actTitle">{$act->name}</div>
 <div class="actDetails">
@@ -6,19 +6,22 @@
     {if $actType}<li>tipul: <b>{$actType->name}</b>{/if}
     {if $act->number}<li>numărul: <b>{$act->number} / {$act->year}</b></li>{/if}
     {if $act->issueDate}<li>data: <b>{$act->issueDate|date_format:"%e %B %Y"}</b></li>{/if}
-    {if count($republicationDates)}
+    {if $monitor}<li>publicat în {include file=bits/monitorLink.tpl monitor=$monitor}</li>{/if}
+  </ul>
+
+  {if count($republicationMonitors)}
+    <ul class="attributes">
       <li>
-        republicat:
+        republicat în 
         {strip}
-          {foreach from=$republicationDates item=rep key=i}
+          {foreach from=$republicationMonitors item=rep key=i}
             {if $i}, {/if}
-            <b>{$rep->issueDate|date_format:"%e %B %Y"}</b>
+            {include file=bits/monitorLink.tpl monitor=$rep}
           {/foreach}
         {/strip}
       </li>
-    {/if}
-    {if $monitor}<li>publicat în <a href="monitor?id={$monitor->id}">Monitorul Oficial {$monitor->number} / {$monitor->year}</a></li>{/if}
-  </ul>
+    </ul>
+  {/if}
 
   <ul class="authors">
     {foreach from=$authors item=author key=i}

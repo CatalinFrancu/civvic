@@ -7,7 +7,7 @@ $id = Util::getRequestParameter('id');
 $deleteId = Util::getRequestParameter('deleteId');
 $modifyingActId = Util::getRequestParameter('modifyingActId');
 $status = Util::getRequestParameter('status');
-$issueDate = Util::getRequestParameter('issueDate');
+$monitorId = Util::getRequestParameter('monitorId');
 $contents = Util::getRequestParameter('contents');
 $submitButton = Util::getRequestParameter('submitButton');
 $previewButton = Util::getRequestParameter('previewButton');
@@ -32,7 +32,7 @@ $av = ActVersion::get_by_id($id);
 if ($submitButton || $previewButton) {
   $av->modifyingActId = $modifyingActId;
   $av->status = $status;
-  $av->issueDate = $issueDate;
+  $av->monitorId = $monitorId;
   $av->contents = $contents;
 }
 
@@ -57,6 +57,7 @@ SmartyWrap::assign('modifyingAct', Act::get_by_id($av->modifyingActId));
 SmartyWrap::assign('actStatuses', Act::$statuses);
 SmartyWrap::assign('actTypes', ActType::mapById());
 SmartyWrap::assign('preview', $previewButton);
+SmartyWrap::assign('monitors', Model::factory('Monitor')->order_by_asc('year')->order_by_asc('number')->find_many());
 SmartyWrap::assign('pageTitle', "Versiune: $av->versionNumber");
 SmartyWrap::display('editare-versiune-act.tpl');
 
