@@ -56,6 +56,7 @@ class ActVersion extends BaseObject {
   function annotate($previousVersion = null) {
     $lines = explode("\n", $this->contents);
     $ann = self::getEmptyAnnotation();
+    require_once 'Act.php'; // So that ACT_STATUS_REPUBLISHED is defined
     if (!$previousVersion || $this->status == ACT_STATUS_REPUBLISHED) {
       $ann['lines'] = $lines;
       $ann['history'] = array_fill(0, count($lines), 'a1'); // Hacky, but 'a' . $this->versionNumber will show in green
