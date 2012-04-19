@@ -1,0 +1,1 @@
+<a href="{$wwwRoot}monitor?id={$monitor->id}">Monitorul Oficial {$monitor->number} / {$monitor->year}</a>

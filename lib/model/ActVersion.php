@@ -115,18 +115,15 @@ class ActVersion extends BaseObject {
     if (!$this->status) {
       FlashMessage::add('Actul trebuie să aibă o stare.');
     }
-    if ($this->status == ACT_STATUS_REPUBLISHED && !$this->issueDate) {
-      FlashMessage::add('Pentru republicări trebuie introdusă și data.');
-    } else if ($this->status != ACT_STATUS_REPUBLISHED && $this->issueDate) {
-      FlashMessage::add('Data este folosită numai pentru republicări.');
+    if ($this->status == ACT_STATUS_REPUBLISHED && !$this->monitorId) {
+      FlashMessage::add('Pentru republicări trebuie introdus și monitorul.');
+    } else if ($this->status != ACT_STATUS_REPUBLISHED && $this->monitorId) {
+      FlashMessage::add('Monitorul este folosit numai pentru republicări.');
     }
     return !FlashMessage::getMessage();
   }
 
   function save() {
-    if ($this->issueDate == '') {
-      $this->issueDate = null;
-    }
     $contentsChanged = $this->is_dirty('contents');
     $annotatedChanged = $this->is_dirty('annotated');
     $validityChanged = $this->is_dirty('status') || $this->is_dirty('current');

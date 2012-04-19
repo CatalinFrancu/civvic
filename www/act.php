@@ -14,8 +14,13 @@ if ($version) {
 }
 $actType = ActType::get_by_id($act->actTypeId);
 
-$republicationDates = Model::factory('ActVersion')->select('issueDate')->where('actId', $act->id)->where('status', ACT_STATUS_REPUBLISHED)
-  ->order_by_asc('versionNumber')->find_many();
+$republicationMonitors = Model::factory('Monitor')
+  ->join('act_version', 'act_version.monitorId = monitor.id')
+  ->select('monitor.*')
+  ->where('actId', $act->id)
+  ->where('status', ACT_STATUS_REPUBLISHED)
+  ->order_by_asc('versionNumber')
+  ->find_many();
 
 $referringActs = Model::factory('Act')
   ->select('act.*')
@@ -38,7 +43,7 @@ SmartyWrap::assign('actType', $actType);
 SmartyWrap::assign('monitor', Monitor::get_by_id($act->monitorId));
 SmartyWrap::assign('authors', Author::getForActId($act->id));
 SmartyWrap::assign('actAuthors', Model::factory('ActAuthor')->where('actId', $act->id)->order_by_asc('rank')->find_many());
-SmartyWrap::assign('republicationDates', $republicationDates);
+SmartyWrap::assign('republicationMonitors', $republicationMonitors);
 SmartyWrap::assign('referringActs', $referringActs);
 SmartyWrap::assign('collidingActs', $collidingActs);
 SmartyWrap::assign('pageTitle', "{$actType->artName} {$act->number} / {$act->year}");

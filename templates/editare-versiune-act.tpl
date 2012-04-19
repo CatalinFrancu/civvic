@@ -14,8 +14,8 @@
       <td>starea:</td>
       <td>
         {include file=bits/actStatusDropdown.tpl name="status" actStatuses=$actStatuses selected=$av->status}
-        <div id="dateDiv">
-          la data de {include file="bits/datePicker.tpl" id="issueDate" name="issueDate" value=$av->issueDate}
+        <div id="repubDiv">
+          în {include file=bits/monitorDropdown.tpl name="monitorId" monitors=$monitors selected=$av->monitorId}</td>
         </div>
       </td>
     </tr>
@@ -56,10 +56,10 @@
 
   function updateDateDivVisibility() {
     if ($(this).val() == 3) {
-      $('#dateDiv').css('display', 'inline');
+      $('#repubDiv').css('display', 'inline');
     } else {
-      $('#dateDiv').css('display', 'none');
-      $('#dateDiv input').val('');
+      $('#repubDiv').css('display', 'none');
+      $('#repubDiv select').val('');
     }
   }
 
