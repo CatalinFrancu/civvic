@@ -22,7 +22,7 @@ class MediaWikiParser {
     $text = self::deleteEmptyTables($text);
     $text = self::texToMathML($text);
 
-    // Automatic links to acts
+    // Automatic and manual links to acts
     $months = implode('|', StringUtil::$months);
     $monthRegexps = array("(?P<monthName>{$months})",
                           "(?P<monthArabic>0?1|0?2|0?3|0?4|0?5|0?6|0?7|0?8|0?9|10|11|12)",
@@ -32,14 +32,18 @@ class MediaWikiParser {
       $regexps = explode("\n", $at->regexps);
       foreach ($regexps as $regexp) {
         if ($regexp) {
+	  // Add regexp for manual matches of the form ((regexp|display_text))
+	  $regexp = "(?P<openParent>\\(\\()?" . $regexp . "(\\s*\\|(?P<displayText>.*)\\)\\))?";
+	  // Assert that there isn't a link already and that the text doesn't immediately follow a dash
           $regexp = "/(?<!-){$regexp}(?!<\\/a)/i";
+	  // Replace the NUMBER and DATE with number and date regexps
           $regexp = str_replace('NUMBER', '(?P<number>[-0-9A-Za-z.]+)', $regexp);
           $regexp = str_replace('DATE', sprintf("((?P<day>\\d{1,2})(\\s+|\\.)(%s)(\\s+|\\.))?(?P<year>\\d{4})", implode('|', $monthRegexps)), $regexp);
 
           $matches = array();
           preg_match_all($regexp, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
           foreach (array_reverse($matches) as $match) {
-            $linkText = $match[0][0];
+            $linkText = array_key_exists('displayText', $match) ? $match['displayText'][0] : $match[0][0];
             $position = $match[0][1];
             $number = $match['number'][0];
             $year = $match['year'][0];
@@ -71,7 +75,7 @@ class MediaWikiParser {
               }
 
               $link = Act::getLink($referredAct, $ref, $linkText);
-              $text = substr($text, 0, $position) . $link . substr($text, $position + strlen($linkText));
+              $text = substr($text, 0, $position) . $link . substr($text, $position + strlen($match[0][0]));
               if ($actReferences !== null) {
                 $actReferences[] = $ref;
               }
