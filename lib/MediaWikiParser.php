@@ -33,7 +33,7 @@ class MediaWikiParser {
       foreach ($regexps as $regexp) {
         if ($regexp) {
 	  // Add regexp for manual matches of the form ((regexp|display_text))
-	  $regexp = "(?P<openParent>\\(\\()?" . $regexp . "(\\s*\\|(?P<displayText>.*)\\)\\))?";
+	  $regexp = "(?P<openParent>\\(\\()?" . $regexp . "(\\s*\\|(?P<displayText>[^|]+)\\)\\))?";
 	  // Assert that there isn't a link already and that the text doesn't immediately follow a dash
           $regexp = "/(?<!-){$regexp}(?!<\\/a)/i";
 	  // Replace the NUMBER and DATE with number and date regexps
