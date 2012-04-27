@@ -3,14 +3,20 @@
 class FlashMessage {
   public static $message = '';
   public static $type = '';
+  private static $anyErrors = false;
 
   static function add($message, $type = 'error') {
     self::$message .= $message . '<br/>';
     self::$type = $type;
+    self::$anyErrors |= ($type == 'error');
   }
 
   static function getMessage() {
     return self::$message ? self::$message : null;
+  }
+
+  static function hasErrors() {
+    return self::$anyErrors;
   }
 
   static function getMessageType() {

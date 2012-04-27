@@ -120,7 +120,7 @@ class ActVersion extends BaseObject {
     } else if ($this->status != ACT_STATUS_REPUBLISHED && $this->monitorId) {
       FlashMessage::add('Monitorul este folosit numai pentru republicări.');
     }
-    return !FlashMessage::getMessage();
+    return !FlashMessage::hasErrors();
   }
 
   function save() {
