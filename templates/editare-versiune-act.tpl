@@ -26,9 +26,26 @@
     <tr>
       <td colspan="2">
         <div id="wikiHtmlPreview" class="wikiHtmlPreview" {if !$preview}style="display: none"{/if}>{$av->htmlContents}</div>
+        {if $avs}
+          {foreach from=$avs item=actVersion key=i}
+            Versiunea {$actVersion->versionNumber} <a class="togglePreviewVersionLink" href="#">arată HTML</a>
+            <div class="wikiHtmlPreview" style="display: none">{$actVersion->htmlContents}</div>            
+            <br/>
+          {/foreach}
+          <br/>
+        {/if}
         <textarea name="contents" rows="20">{$av->contents}</textarea><br/>
       </td>
     </tr>
+    {if $numVersions > 1}
+      <tr>
+        <td colspan="2">
+          <input type="checkbox" id="allVersions" name="allVersions" {if $allVersions}checked="checked"{/if} value="1"/>
+          <label for="allVersions">Aplică această modificare în toate versiunile</label>
+          <span class="hint">Util când găsiți o greșeală de tipar</span>
+        </td>
+      </tr>
+    {/if}
     <tr>
       <td></td>
       <td>
@@ -51,7 +68,12 @@
   {literal}
   $('#togglePreviewLink').click(function(ev) { 
     $('#wikiHtmlPreview').toggle('fast'); 
-    $(this).text(($('#togglePreviewLink').text() == 'arată HTML') ? 'ascunde HTML' : 'arată HTML');
+    $(this).text(($(this).text() == 'arată HTML') ? 'ascunde HTML' : 'arată HTML');
+   });
+
+  $('.togglePreviewVersionLink').click(function(ev) { 
+    $(this).next('.wikiHtmlPreview').toggle('fast'); 
+    $(this).text(($(this).text() == 'arată HTML') ? 'ascunde HTML' : 'arată HTML');
    });
 
   function updateDateDivVisibility() {

@@ -57,7 +57,7 @@ class SimpleDiff {
   }
 
   static function lineDiff($old, $new) {
-    return self::diff(explode("\r\n", $old), explode("\r\n", $new), 1);
+    return self::diff(preg_split("/(\\r\\n|\\n)/", $old), preg_split("/(\\r\\n|\\n)/", $new), 1);
   }
 
   /**
