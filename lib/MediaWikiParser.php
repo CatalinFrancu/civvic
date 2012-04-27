@@ -86,7 +86,7 @@ class MediaWikiParser {
     }
 
     // Automatic links to monitors
-    $date = sprintf("\\s*(din|\\/)\\s*(?P<day>\\d{1,2})(\\s+|\\.)(%s)(\\s+|\\.)?(?P<year>\\d{4})", implode('|', $monthRegexps));
+    $date = sprintf("\\s*(din|\\/)\\s*((?P<day>\\d{1,2})(\\s+|\\.)(%s)(\\s+|\\.))?(?P<year>\\d{4})", implode('|', $monthRegexps));
     $regexp = "/Monitorul(ui)?\\s+Oficial(\\s+al\\s+României)?((\\s|,)+partea\\s+(1|I)(\\s|,)+)?(\\s+nr\\.?)?\\s*(?P<number>[-0-9A-Za-z.]+){$date}/i";
     $matches = array();
     preg_match_all($regexp, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
