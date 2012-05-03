@@ -67,11 +67,12 @@ div.clearer {
 }
 
 div.leaderboard {
+  border: 1px solid black;
   clear: both;
-  height: 91px;
+  height: 90px;
   margin: 5px auto 0px;
   text-align: center;
-  width: 729px;
+  width: 728px;
 }
 
 #template {
