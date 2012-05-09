@@ -17,8 +17,10 @@ class MediaWikiParser {
     $text = self::insertChangeDetails($actVersion);
     $text = self::ensureReferences($text);
     $text = self::removeMonitorLinks($text);
+    $text = self::nowikiManualLinks($text);
     $text = self::nowikiMathTags($text);
     $text = self::parse($text);
+    $text = self::rewikiManualLinks($text);
     $text = self::deleteEmptyTables($text);
     $text = self::texToMathML($text);
 
@@ -257,6 +259,14 @@ class MediaWikiParser {
 
   private static function nowikiMathTags($text) {
     return str_replace(array('<math>', '</math>'), array('<nowiki><math>', '</math></nowiki>'), $text);
+  }
+
+  private static function nowikiManualLinks($text) {
+    return preg_replace("/(\\(\\([^|]+)\\|([^()|]+\\)\\))/", "$1<nowiki>|</nowiki>$2", $text);
+  }
+
+  private static function rewikiManualLinks($text) {
+    return preg_replace("/(\\(\\([^|]+)<nowiki>\\|<\\/nowiki>([^()|]+\\)\\))/", "$1|$2", $text);
   }
 
   private static function texToMathML($text) {
