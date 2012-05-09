@@ -19,6 +19,17 @@
     lățime: <input type="text" id="areaWidth" name="width" value="{$ci.width}" size="4" readonly="readonly"/>
     înălțime: <input type="text" id="areaHeight" name="height" value="{$ci.height}" size="4" readonly="readonly"/><br/>
 
+    rotație:
+    <input type="radio" name="rotation" id="rot0" value="0" {if $ci.rotation == 0}checked="checked"{/if}/>
+    <label for="rot0">normală</label>&nbsp;
+    <input type="radio" name="rotation" id="rot90" value="90" {if $ci.rotation == 90}checked="checked"{/if}/>
+    <label for="rot0">90° stânga</label>&nbsp;
+    <input type="radio" name="rotation" id="rot180" value="180" {if $ci.rotation == 180}checked="checked"{/if}/>
+    <label for="rot0">180°</label>&nbsp;
+    <input type="radio" name="rotation" id="rot270" value="270" {if $ci.rotation == 270}checked="checked"{/if}/>
+    <label for="rot0">90° dreapta</label>&nbsp;
+    <br/>
+
     nume:
     <input type="text" name="cropName" value="{$ci.name}"/>
     <input type="submit" name="cropButton" value="Salvează"/>
