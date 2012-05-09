@@ -72,6 +72,19 @@ class StringUtil {
     }
     return $s;
   }
+
+  static function isUppercase($s) {
+    return mb_strtoupper($s) == $s;
+  }
+
+  static function isCapitalized($s) {
+    $first = mb_substr($s, 0, 1);
+    return mb_strtoupper($first) == $first;
+  }
+
+  static function capitalize($s) {
+    return mb_strtoupper(mb_substr($s, 0, 1)) . mb_substr($s, 1);
+  }
 }
 
 ?>
