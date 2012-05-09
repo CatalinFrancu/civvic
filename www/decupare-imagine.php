@@ -13,6 +13,7 @@ $ci['x0'] = Util::getRequestParameter('x0');
 $ci['y0'] = Util::getRequestParameter('y0');
 $ci['width'] = Util::getRequestParameter('width');
 $ci['height'] = Util::getRequestParameter('height');
+$ci['rotation'] = Util::getRequestParameter('rotation');
 
 $imageName = Util::getRequestParameter('imageName');
 $pageGrabButton = Util::getRequestParameter('pageGrabButton');
@@ -62,6 +63,9 @@ function cropFrom($pdfImageName, $ci) {
   $src = imagecreatefrompng($pdfFileName);
   $dst = imagecreatetruecolor($ci['width'], $ci['height']);
   imagecopy($dst, $src, 0, 0, $ci['x0'], $ci['y0'], $ci['width'], $ci['height']);
+  if ($ci['rotation']) {
+    $dst = imagerotate($dst, $ci['rotation'], 0);
+  }
   $filename = sprintf("%s/www/img/%s/%s.png", Util::$rootPath, Config::get('pdfImage.croppedImageDir'), $ci['name']);
   if (@file_exists($filename)) {
     FlashMessage::add("Există deja un fișier cu numele {$ci['name']}.");
