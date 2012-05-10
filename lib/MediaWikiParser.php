@@ -389,7 +389,7 @@ class MediaWikiParser {
       return false;
     }
     $contents = StringUtil::sanitize($contents);
-    $contents = self::sanitizeMonitor($contents);
+    $contents = self::sanitizeMonitor($contents, $year);
 
     // Extract the publication date
     $regexp = sprintf("/Anul\\s+[IVXLCDM]+,?\\s+Nr\\.\\s+\\[\\[issue::\s*0*(?P<number>[-0-9A-Za-z.]+)\\]\\]\\s+-\\s+(Partea\\s+I\\s+-\\s+)?" .
@@ -747,9 +747,14 @@ class MediaWikiParser {
   }
 
   /* Sanitizes monitor-specific text. For general purpose sanitization, use StringUtil::sanitize(). */
-  static function sanitizeMonitor($text) {
+  static function sanitizeMonitor($text, $year) {
     // Replace single emdashes with dashes.
-    return preg_replace("/(?<!—)—(?!—)/", '-', $text);
+    $text = preg_replace("/(?<!—)—(?!—)/", '-', $text);
+
+    // Replace [[Fișier... links with {{Imagine... templates
+    $text = preg_replace("/\\[\\[(fișier|fişier|file):([^.]+)\\.(png|jpg|jpeg|gif)\\]\\]/i", "{{Imagine|$year/$2}}", $text);
+
+    return $text;
   }
 
 }
