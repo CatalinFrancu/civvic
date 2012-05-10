@@ -389,6 +389,7 @@ class MediaWikiParser {
       return false;
     }
     $contents = StringUtil::sanitize($contents);
+    $contents = self::sanitizeMonitor($contents);
 
     // Extract the publication date
     $regexp = sprintf("/Anul\\s+[IVXLCDM]+,?\\s+Nr\\.\\s+\\[\\[issue::\s*0*(?P<number>[-0-9A-Za-z.]+)\\]\\]\\s+-\\s+(Partea\\s+I\\s+-\\s+)?" .
@@ -743,6 +744,12 @@ class MediaWikiParser {
     $data['signatureTypes'] = array_fill(0, count($authorSpecs), ActAuthor::$SIGNED);
     $data['notes'] = array_fill(0, count($authorSpecs), '');
     return $data;
+  }
+
+  /* Sanitizes monitor-specific text. For general purpose sanitization, use StringUtil::sanitize(). */
+  static function sanitizeMonitor($text) {
+    // Replace single emdashes with dashes.
+    return preg_replace("/(?<!—)—(?!—)/", '-', $text);
   }
 
 }
