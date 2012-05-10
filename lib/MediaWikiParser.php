@@ -250,7 +250,7 @@ class MediaWikiParser {
 
   private static function removeMonitorLinks($text) {
     $count = 0;
-    $text = preg_replace("/\\[\\[Monitorul_Oficial[^|]+\\|([^\\]]+)\\]\\]/", '$1', $text, -1, $count);
+    $text = preg_replace("/\\[\\[Monitorul[_ ]Oficial[^|]+\\|([^\\]]+)\\]\\]/", '$1', $text, -1, $count);
     if ($count) {
       FlashMessage::add("Am eliminat {$count} legături wiki către alte monitoare.", 'warning');
     }
