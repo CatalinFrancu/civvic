@@ -16,13 +16,11 @@ $text = file_get_contents($argv[1]);
 $text = replaceMisc($text);
 $text = removeHyphenation($text);
 $text = removeLineBreaks($text);
-$text = correctAndCollect($text);
-
-/* foreach ($WORD_MAP as $word => $occ) { */
-/*   print(sprintf("%03d %s\n", $occ, $word)); */
-/* } */
-
-$text = correctWithWordMap($text);
+$text = fixArticleHeader($text);
+$text = fixBulletedLists($text);
+$text = fixPunctuation($text);
+// $text = correctAndCollect($text);
+// $text = correctWithWordMap($text);
 
 file_put_contents($argv[2], $text);
 
@@ -39,6 +37,19 @@ function removeHyphenation($text) {
 
 function removeLineBreaks($text) {
   return preg_replace("/([a-zA-ZăâîșțĂÂÎȘȚ])\\n([a-zA-ZăâîșțĂÂÎȘȚ])/", "$1 $2", $text);
+}
+
+function fixArticleHeader($text) {
+  return preg_replace("/\\n *Art\\.?\\s*([0-9]+)\\.?\\s*-+\\s*/", "\nArt. $1. - ", $text);
+}
+
+function fixBulletedLists($text) {
+  return preg_replace("/\\n+-+ +/", "\n* ", $text);
+}
+
+function fixPunctuation($text) {
+  // Delete spaces before punctuation
+  return preg_replace("/ +([.,;:?!])/", "$1", $text);
 }
 
 function replaceIA($word) {
