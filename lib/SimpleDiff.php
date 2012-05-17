@@ -23,21 +23,24 @@
 class SimpleDiff {
 
   /** Returns an array with keys length, oldOffset, newOffset **/
-  private static function longestSubarray(&$old, &$new) {
+  static function longestSubarray(&$old, &$new) {
     $maxlen = 0;
     $omax = 0;
     $nmax = 0;
+    $vprev = array();
     foreach ($old as $oindex => $ovalue) {
-      $nkeys = array_keys($new, $ovalue);
-      foreach ($nkeys as $nindex) {
-        $matrix[$oindex][$nindex] = isset($matrix[$oindex - 1][$nindex - 1]) ?
-          $matrix[$oindex - 1][$nindex - 1] + 1 : 1;
-        if ($matrix[$oindex][$nindex] > $maxlen) {
-          $maxlen = $matrix[$oindex][$nindex];
-          $omax = $oindex + 1 - $maxlen;
-          $nmax = $nindex + 1 - $maxlen;
+      $vcurrent = array();
+      foreach ($new as $nindex => $nvalue) {
+        if ($ovalue == $nvalue) {
+          $vcurrent[$nindex] = array_key_exists($nindex - 1, $vprev) ? ($vprev[$nindex - 1] + 1) : 1;
+          if ($vcurrent[$nindex] > $maxlen) {
+            $maxlen = $vcurrent[$nindex];
+            $omax = $oindex + 1 - $maxlen;
+            $nmax = $nindex + 1 - $maxlen;
+          }
         }
-      }	
+      }
+      $vprev = $vcurrent;
     }
     return array('length' => $maxlen, 'oldOffset' => $omax, 'newOffset' => $nmax);
   }
