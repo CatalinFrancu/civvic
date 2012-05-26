@@ -61,6 +61,7 @@ class MediaWikiParser {
             }
 
             if ($position && $text[$position - 1] == '@') {
+	      // Automatic link is disallowed explicitly
               $text = substr($text, 0, $position - 1) . substr($text, $position);
             } else {
               $act = Act::get_by_id($actVersion->actId);
@@ -76,11 +77,14 @@ class MediaWikiParser {
                 $ref->referredActId = $referredAct->id;
               }
 
-              $link = Act::getLink($referredAct, $ref, $linkText);
-              $text = substr($text, 0, $position) . $link . substr($text, $position + strlen($match[0][0]));
-              if ($actReferences !== null) {
-                $actReferences[] = $ref;
-              }
+	      // Self-referring acts do occur, see ID = 1040 or 1360
+	      if ($ref->referredActId != $act->id) {
+		$link = Act::getLink($referredAct, $ref, $linkText);
+		$text = substr($text, 0, $position) . $link . substr($text, $position + strlen($match[0][0]));
+		if ($actReferences !== null) {
+		  $actReferences[] = $ref;
+		}
+	      }
             }
           }
         }
