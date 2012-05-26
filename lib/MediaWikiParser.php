@@ -138,7 +138,6 @@ class MediaWikiParser {
     $params = array('action' => 'query', 'list' => 'categorymembers', 'cmtitle' => "Categorie:$cat", 'cmlimit' => 'max', 'format' => 'xml');
     $xmlString = Util::makePostRequest(self::$url, $params, true);
     $xml = simplexml_load_string($xmlString);
-    var_dump(count($xml->query->categorymembers->cm));
     foreach ($xml->query->categorymembers->cm as $cm) {
       $results[] = (string)$cm['title'];
     }
@@ -752,7 +751,8 @@ class MediaWikiParser {
 
   /* Sanitizes monitor-specific text. For general purpose sanitization, use StringUtil::sanitize(). */
   static function sanitizeMonitor($text, $year) {
-    // Replace single emdashes with dashes.
+    // Replace single endashes (U+2013) and emdashes (U+2014) with dashes.
+    $text = preg_replace("/(?<!–)–(?!–)/", '-', $text);
     $text = preg_replace("/(?<!—)—(?!—)/", '-', $text);
 
     // Replace [[Fișier... links with {{Imagine... templates
