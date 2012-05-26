@@ -35,7 +35,7 @@ class MediaWikiParser {
       foreach ($regexps as $regexp) {
         if ($regexp) {
 	  // Add regexp for manual matches of the form ((regexp|display_text))
-	  $regexp = "(?P<openParent>\\(\\()?" . $regexp . "(\\s*\\|(?P<displayText>[^|]+)\\)\\))?";
+	  $regexp = "(\\(\\()?" . $regexp . "(\\s*\\|(?P<displayText>[^|]+)\\)\\))?";
 	  // Assert that there isn't a link already and that the text doesn't immediately follow a dash
           $regexp = "/(?<!-){$regexp}(?!<\\/a)/i";
 	  // Replace the NUMBER and DATE with number and date regexps
@@ -88,6 +88,31 @@ class MediaWikiParser {
             }
           }
         }
+      }
+    }
+
+    // Manual links using the explicit act ID, e.g. ((1390|legea nr. 1/1990))
+    $regexp = "/\\(\\(\\s*(?P<actId>[0-9]+)\\s*\\|(?P<displayText>[^|]+)\\)\\)/i";
+    $matches = array();
+    preg_match_all($regexp, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+    foreach (array_reverse($matches) as $match) {
+      $linkText = $match['displayText'][0];
+      $position = $match[0][1];
+
+      $referredAct = Act::get_by_id($match['actId'][0]);
+      if ($referredAct) {
+	$ref = Model::factory('ActReference')->create();
+	$ref->actTypeId = $referredAct->actTypeId;
+	$ref->number = $referredAct->number;
+	$ref->year = $referredAct->year;
+	$ref->issueDate = $referredAct->issueDate;
+	$ref->referredActId = $referredAct->id;
+
+	$link = Act::getLink($referredAct, $ref, $linkText);
+	$text = substr($text, 0, $position) . $link . substr($text, $position + strlen($match[0][0]));
+	if ($actReferences !== null) {
+	  $actReferences[] = $ref;
+	}
       }
     }
 
