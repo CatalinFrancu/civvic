@@ -34,11 +34,11 @@ class MediaWikiParser {
       $regexps = explode("\n", $at->regexps);
       foreach ($regexps as $regexp) {
         if ($regexp) {
-	  // Add regexp for manual matches of the form ((regexp|display_text))
-	  $regexp = "(\\(\\()?" . $regexp . "(\\s*\\|(?P<displayText>[^|]+)\\)\\))?";
-	  // Assert that there isn't a link already and that the text doesn't immediately follow a dash
+          // Add regexp for manual matches of the form ((regexp|display_text))
+          $regexp = "(\\(\\()?" . $regexp . "(\\s*\\|(?P<displayText>[^|]+)\\)\\))?";
+          // Assert that there isn't a link already and that the text doesn't immediately follow a dash
           $regexp = "/(?<!-){$regexp}(?!<\\/a)/i";
-	  // Replace the NUMBER and DATE with number and date regexps
+          // Replace the NUMBER and DATE with number and date regexps
           $regexp = str_replace('NUMBER', '(?P<number>[-0-9A-Za-z.]+)', $regexp);
           $regexp = str_replace('DATE', sprintf("((?P<day>\\d{1,2})(\\s+|\\.)(%s)(\\s+|\\.))?(?P<year>\\d{4})", implode('|', $monthRegexps)), $regexp);
 
@@ -61,7 +61,7 @@ class MediaWikiParser {
             }
 
             if ($position && $text[$position - 1] == '@') {
-	      // Automatic link is disallowed explicitly
+              // Automatic link is disallowed explicitly
               $text = substr($text, 0, $position - 1) . substr($text, $position);
             } else {
               $act = Act::get_by_id($actVersion->actId);
@@ -77,14 +77,14 @@ class MediaWikiParser {
                 $ref->referredActId = $referredAct->id;
               }
 
-	      // Self-referring acts do occur, see ID = 1040 or 1360
-	      if ($ref->referredActId != $act->id) {
-		$link = Act::getLink($referredAct, $ref, $linkText);
-		$text = substr($text, 0, $position) . $link . substr($text, $position + strlen($match[0][0]));
-		if ($actReferences !== null) {
-		  $actReferences[] = $ref;
-		}
-	      }
+              // Self-referring acts do occur, see ID = 1040 or 1360
+              if (!$act || $ref->referredActId != $act->id) {
+                $link = Act::getLink($referredAct, $ref, $linkText);
+                $text = substr($text, 0, $position) . $link . substr($text, $position + strlen($match[0][0]));
+                if ($actReferences !== null) {
+                  $actReferences[] = $ref;
+                }
+              }
             }
           }
         }
@@ -101,18 +101,18 @@ class MediaWikiParser {
 
       $referredAct = Act::get_by_id($match['actId'][0]);
       if ($referredAct) {
-	$ref = Model::factory('ActReference')->create();
-	$ref->actTypeId = $referredAct->actTypeId;
-	$ref->number = $referredAct->number;
-	$ref->year = $referredAct->year;
-	$ref->issueDate = $referredAct->issueDate;
-	$ref->referredActId = $referredAct->id;
+        $ref = Model::factory('ActReference')->create();
+        $ref->actTypeId = $referredAct->actTypeId;
+        $ref->number = $referredAct->number;
+        $ref->year = $referredAct->year;
+        $ref->issueDate = $referredAct->issueDate;
+        $ref->referredActId = $referredAct->id;
 
-	$link = Act::getLink($referredAct, $ref, $linkText);
-	$text = substr($text, 0, $position) . $link . substr($text, $position + strlen($match[0][0]));
-	if ($actReferences !== null) {
-	  $actReferences[] = $ref;
-	}
+        $link = Act::getLink($referredAct, $ref, $linkText);
+        $text = substr($text, 0, $position) . $link . substr($text, $position + strlen($match[0][0]));
+        if ($actReferences !== null) {
+          $actReferences[] = $ref;
+        }
       }
     }
 
@@ -180,9 +180,9 @@ class MediaWikiParser {
 
   static function botLogin() {
     $xmlString = Util::makePostRequest(self::$url . "?action=login&format=xml",
-				       array('lgname' => self::$botName,
+                                       array('lgname' => self::$botName,
                                              'lgpassword' => self::$botPassword),
-				       true);
+                                       true);
     $xml = simplexml_load_string($xmlString);
     // $result = (string)$xml->login['result'];
     $token = (string)$xml->login['token'];
@@ -196,12 +196,12 @@ class MediaWikiParser {
 
   static function botProtectMonitor($pageTitle) {
     $xmlString = Util::makePostRequest(self::$url,
-				       array('action' => 'query',
+                                       array('action' => 'query',
                                              'format' => 'xml',
                                              'prop' => 'info',
                                              'intoken' => 'protect',
                                              'titles' => $pageTitle),
-				       true);
+                                       true);
     $xml = simplexml_load_string($xmlString);
     $protectToken = (string)$xml->query->pages->page[0]['protecttoken'];
 
@@ -222,12 +222,12 @@ class MediaWikiParser {
       return; // Page already contains warning
     }
     $xmlString = Util::makePostRequest(self::$url,
-				       array('action' => 'query',
+                                       array('action' => 'query',
                                              'format' => 'xml',
                                              'prop' => 'info',
                                              'intoken' => 'edit',
                                              'titles' => $pageTitle),
-				       true);
+                                       true);
     $xml = simplexml_load_string($xmlString);
     $editToken = (string)$xml->query->pages->page[0]['edittoken'];
 
@@ -244,12 +244,12 @@ class MediaWikiParser {
 
   static function botSavePage($pageTitle, $contents, $summary) {
     $xmlString = Util::makePostRequest(self::$url,
-				       array('action' => 'query',
+                                       array('action' => 'query',
                                              'format' => 'xml',
                                              'prop' => 'info',
                                              'intoken' => 'edit',
                                              'titles' => $pageTitle),
-				       true);
+                                       true);
     $xml = simplexml_load_string($xmlString);
     $editToken = (string)$xml->query->pages->page[0]['edittoken'];
 
