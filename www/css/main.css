@@ -66,15 +66,6 @@ div.clearer {
   clear: both;
 }
 
-div.leaderboard {
-  border: 1px solid black;
-  clear: both;
-  height: 90px;
-  margin: 5px auto 0px;
-  text-align: center;
-  width: 728px;
-}
-
 #template {
 }
 

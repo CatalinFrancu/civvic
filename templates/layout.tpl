@@ -73,12 +73,6 @@
       </div>
       <div class="clearer"></div>
 
-      {if !$user || !$user->admin}
-        <div class="leaderboard">
-          <a href="http://www.nicusordan.ro/"><img src="{$wwwRoot}img/nicusor-dan.jpg" alt="banner Nicușor Dan"/></a>
-        </div>
-      {/if}
-
       {include file="bits/flashMessage.tpl"}
       <div id="template">
         {include file=$templateName}
