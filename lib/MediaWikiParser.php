@@ -525,7 +525,7 @@ class MediaWikiParser {
         do {
           $signIndex--;
           $signLine = trim($chunk[$signIndex]);
-          $found = StringUtil::startsWith($signLine, '{{') && StringUtil::endsWith($signLine, '}}');
+          $found = StringUtil::startsWith($signLine, '{{') && StringUtil::endsWith($signLine, '}}') && !StringUtil::startsWith($signLine, '{{Imagine');
         } while ($signIndex > 0 && !$found);
         if ($found) {
           $signData = self::parseSignatureLine($signLine);
