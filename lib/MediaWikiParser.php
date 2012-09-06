@@ -710,6 +710,20 @@ class MediaWikiParser {
 	  "contrasemnăm acest decret.";
       }
       break;
+    case 'SemnDecret92':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('name' => array('%s', array('presRom')),
+                                                      'position' => array('Președintele României', array())),
+                                                array('name' => array('%s', array('primMin')),
+                                                      'position' => array('Prim-ministru', array()))),
+                                          'oras', 'dataSem', 'nrDec',
+                                          array('presRom', 'primMin', 'dataSem', 'nrDec'),
+                                          array('oras' => 'București'));
+      if ($result) {
+	$result['signatureTypes'][1] = ActAuthor::$COUNTERSIGNED;
+	$result['notes'][1] = "În temeiul art. 99 alin. (2) din Constituția României, contrasemnăm acest decret.";
+      }
+      break;
     default:
       FlashMessage::add(sprintf("Nu știu să interpretez semnături de tipul {{%s}}.", $parts[0]));
       return false;
