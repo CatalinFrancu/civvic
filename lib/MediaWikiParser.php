@@ -674,10 +674,26 @@ class MediaWikiParser {
                                           'oras', 'dataPres', 'nrLege',
                                           array('presSenat', 'presAd', 'presRom', 'dataPres', 'nrLege'),
                                           array('oras' => 'București'));
-      $result['notes'][0] = sprintf("Această lege a fost adoptată de Senat în ședința din %s.", $parts['dataSenat']);
-      $result['notes'][1] = sprintf("Această lege a fost adoptată de Adunarea Deputaților în ședința din %s.", $parts['dataAd']);
-      $result['notes'][2] = sprintf("În temeiul art. 82 lit. m) din Decretul-lege nr. 92/1990 pentru alegerea parlamentului și a Președintelui " .
-                                    "României, promulgăm %s și dispunem publicarea sa în Monitorul Oficial al României.", $parts['numeLege']);
+      if ($result) {
+	$result['notes'][0] = sprintf("Această lege a fost adoptată de Senat în ședința din %s.", $parts['dataSenat']);
+	$result['notes'][1] = sprintf("Această lege a fost adoptată de Adunarea Deputaților în ședința din %s.", $parts['dataAd']);
+	$result['notes'][2] = sprintf("În temeiul art. 82 lit. m) din Decretul-lege nr. 92/1990 pentru alegerea parlamentului și a Președintelui " .
+				      "României, promulgăm %s și dispunem publicarea sa în Monitorul Oficial al României.", $parts['numeLege']);
+      }
+      break;
+    case 'SemnLege92':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('concat(title, " ", name)' => array('%s', array('presSenat')),
+                                                      'position' => array('Președintele Senatului', array())),
+                                                array('name' => array('%s', array('presCd')),
+                                                      'position' => array('Președintele Camerei Deputaților', array()))),
+                                          'oras', 'dataAct', 'nrAct',
+                                          array('presSenat', 'presCd', 'dataAct', 'nrAct'),
+                                          array('oras' => 'București'));
+      if ($result) {
+	$result['notes'][0] = sprintf("Această lege a fost adoptată de Senat în ședința din %s.", $parts['dataSenat']);
+	$result['notes'][1] = sprintf("Această lege a fost adoptată de Camera Deputaților în ședința din %s.", $parts['dataAd']);
+      }
       break;
     case 'SemnDecret':
       $result = self::parseSignatureParts($line, $parts,
@@ -688,9 +704,11 @@ class MediaWikiParser {
                                           'oras', 'dataSem', 'nrDec',
                                           array('presRom', 'primMin', 'dataSem', 'nrDec'),
                                           array('oras' => 'București'));
-      $result['signatureTypes'][1] = ActAuthor::$COUNTERSIGNED;
-      $result['notes'][1] = "În temeiul art. 82 alin. 2 din Decretul-lege nr. 92/1990 pentru alegerea parlamentului și a Președintelui României, " .
-        "contrasemnăm acest decret.";
+      if ($result) {
+	$result['signatureTypes'][1] = ActAuthor::$COUNTERSIGNED;
+	$result['notes'][1] = "În temeiul art. 82 alin. 2 din Decretul-lege nr. 92/1990 pentru alegerea parlamentului și a Președintelui României, " .
+	  "contrasemnăm acest decret.";
+      }
       break;
     default:
       FlashMessage::add(sprintf("Nu știu să interpretez semnături de tipul {{%s}}.", $parts[0]));
@@ -713,7 +731,7 @@ class MediaWikiParser {
       }
     }
     foreach ($nullValues as $key) {
-      if ($parts[$key]) {
+      if (array_key_exists($key, $parts)) {
         FlashMessage::add(sprintf("Nu știu să gestionez argumentul '%s' în semnătura '%s'.", $key, $line));
         return false;
       }
