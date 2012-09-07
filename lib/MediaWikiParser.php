@@ -688,11 +688,11 @@ class MediaWikiParser {
                                                 array('name' => array('%s', array('presCd')),
                                                       'position' => array('Președintele Camerei Deputaților', array()))),
                                           'oras', 'dataAct', 'nrAct',
-                                          array('presSenat', 'presCd', 'dataAct', 'nrAct'),
+                                          array('presSenat', 'presCd', 'dataAct', 'nrAct', 'FelAct'),
                                           array('oras' => 'București'));
       if ($result) {
-	$result['notes'][0] = sprintf("Această lege a fost adoptată de Senat în ședința din %s.", $parts['dataSenat']);
-	$result['notes'][1] = sprintf("Această lege a fost adoptată de Camera Deputaților în ședința din %s.", $parts['dataAd']);
+	$result['notes'][0] = sprintf("Această %s a fost adoptată de Senat în ședința din %s.", $parts['FelAct'], $parts['dataSenat']);
+	$result['notes'][1] = sprintf("Această %s a fost adoptată de Camera Deputaților în ședința din %s.", $parts['FelAct'], $parts['dataAd']);
       }
       break;
     case 'SemnDecret':
