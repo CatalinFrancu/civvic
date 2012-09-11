@@ -80,6 +80,10 @@ class Util {
     return array_key_exists($name, $_REQUEST) ? StringUtil::sanitize($_REQUEST[$name]) : $default;
   }
 
+  static function getCheckboxValue($name, $default = false) {
+    return array_key_exists($name, $_REQUEST);
+  }
+
   static function makePostRequest($url, $data, $useCookies = false) {
     $ch = curl_init($url);
     if ($useCookies) {

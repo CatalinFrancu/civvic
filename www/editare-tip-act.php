@@ -7,6 +7,7 @@ $id = Util::getRequestParameter('id');
 $deleteId = Util::getRequestParameter('deleteId');
 $name = Util::getRequestParameter('name');
 $artName = Util::getRequestParameter('artName');
+$hasNumbers = Util::getCheckboxValue('hasNumbers');
 $regexps = Util::getRequestParameter('regexps');
 $prefixes = Util::getRequestParameter('prefixes');
 $sectionNames = Util::getRequestParameter('sectionNames');
@@ -36,6 +37,7 @@ if ($id) {
 if ($submitButton) {
   $actType->name = $name;
   $actType->artName = $artName;
+  $actType->hasNumbers = $hasNumbers;
   $actType->regexps = trim($regexps);
   $actType->prefixes = trim($prefixes);
   $actType->sectionNames = trim($sectionNames);

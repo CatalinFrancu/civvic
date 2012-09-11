@@ -111,6 +111,11 @@ class Act extends BaseObject {
    *   - Return the act with the smallest issueDate
    **/
   static function getReferredAct($ar, $referringIssueDate) {
+    $actType = ActType::get_by_id($ar->actTypeId);
+    if (!$actType->hasNumbers) {
+      return Model::factory('Act')->where('actTypeId', $ar->actTypeId)->where_lte('issueDate', $referringIssueDate)
+	->order_by_desc('issueDate')->find_one();
+    }
     if ($ar->issueDate) {
       $act = Model::factory('Act')->where('actTypeId', $ar->actTypeId)->where('number', $ar->number)->where('year', $ar->year)
         ->where('issueDate', $ar->issueDate)->find_one();

@@ -24,7 +24,12 @@ class ActReference extends BaseObject {
   }
 
   static function reassociate($actTypeId, $number, $year, &$actVersionIdMap = null) {
-    $refs = Model::factory('ActReference')->where('actTypeId', $actTypeId)->where('number', $number)->where('year', $year)->find_many();
+    $actType = ActType::get_by_id($actTypeId);
+    if ($actType->hasNumbers) {
+      $refs = Model::factory('ActReference')->where('actTypeId', $actTypeId)->where('number', $number)->where('year', $year)->find_many();
+    } else {
+      $refs = Model::factory('ActReference')->where('actTypeId', $actTypeId)->find_many();
+    }
     foreach ($refs as $ref) {
       $actVersion = ActVersion::get_by_id($ref->actVersionId);
       $act = Act::get_by_id($actVersion->actId);
