@@ -11,6 +11,8 @@
   {/if}
   Nume: <input type="text" name="name" value="{$actType->name}"/><br/>
   Articulat: <input type="text" name="artName" value="{$actType->artName}"/><br/>
+  Numerotat: <input type="checkbox" name="hasNumbers" value="1" {if $actType->hasNumbers}checked="checked"{/if}/>
+  <span class="hint">(unele tipuri de acte nu au numere: Constituția, Codul civil etc.)</span><br/>
   Expresii regulate: <span class="hint">(pentru crearea automată de legături)</span><br/>
   <textarea name="regexps" rows="5">{$actType->regexps}</textarea><br/>
   Prefixe: <span class="hint">(din titlurile actelor la importarea de monitoare)</span><br/>

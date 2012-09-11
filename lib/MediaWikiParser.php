@@ -47,8 +47,8 @@ class MediaWikiParser {
           foreach (array_reverse($matches) as $match) {
             $linkText = array_key_exists('displayText', $match) ? $match['displayText'][0] : $match[0][0];
             $position = $match[0][1];
-            $number = $match['number'][0];
-            $year = $match['year'][0];
+            $number = array_key_exists('number', $match) ? $match['number'][0] : null;
+            $year = array_key_exists('year', $match) ? $match['year'][0] : null;
             $day = array_key_exists('day', $match) ? $match['day'][0] : 0;
             if (array_key_exists('monthName', $match) && $match['monthName'][0]) {
               $month = 1 + array_search(strtolower($match['monthName'][0]), StringUtil::$months);
