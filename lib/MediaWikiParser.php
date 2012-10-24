@@ -276,6 +276,65 @@ class MediaWikiParser {
     return $text;
   }
 
+  /** Replaces countersignatures of the form:
+   *
+   * Contrasemnează:
+   *
+   * Ministrul industriei, '''Surname Name'''
+   * more signatures...
+   **/
+  private static function replaceCountersignatures(&$lines) {
+    $pos = 0;
+    while ($pos < count($lines) && trim($lines[$pos]) != 'Contrasemnează:') {
+      $pos++;
+    }
+    if ($pos == count($lines)) {
+      return; // No countersignature line
+    }
+
+    // Find the ending line -- either the end of the text or the start of a subsection
+    $end = $pos + 1;
+    while ($end < count($lines) && !StringUtil::startsWith($lines[$end], '====') && !StringUtil::startsWith($lines[$end], "'''")) {
+      $end++;
+    }
+
+    $newLines = array();
+    for ($i = $pos + 1; $i < $end; $i++) {
+      $l = trim($lines[$i]);
+      $matches = array();
+      if (preg_match("/^(?P<position>.*),\\s+\\'\\'\\'((?P<title>[a-z][^A-Z]+)\s+)?(?P<name>.*)\\'\\'\\'$/", $l, $matches)) {
+        $newLines[] = sprintf("{{Csem|func=%s|titlu=%s|nume=%s}}", $matches['position'], $matches['title'], $matches['name']);
+        FlashMessage::add(sprintf('Am extras automat contrasemnătura func:[%s], titlu:[%s], nume:[%s]',
+                                  $matches['position'], $matches['title'], $matches['name']), 'warning');
+      } else if ($l) {
+        FlashMessage::add("Linia [$l] nu are sintaxa unei contrasemnături", 'warning');
+      }
+    }
+
+    array_splice($lines, $pos, $end - $pos, $newLines);
+  }
+
+  /** Returns true on success, false on failure **/
+  private static function parseCountersignatures(&$actAuthors, &$lines) {
+    $i = 0;
+    while ($i < count($lines)) {
+      if (StringUtil::startsWith($lines[$i], '{{Csem')) {
+        $signData = self::parseSignatureLine($lines[$i]);
+        if (!$signData) {
+          return false;
+        }
+        $aa = Model::factory('ActAuthor')->create();
+        $aa->authorId = $signData['authorIds'][0];
+        $aa->signatureType = ActAuthor::$COUNTERSIGNED;
+        $actAuthors[] = $aa;
+        array_splice($lines, $i, 1);
+      } else {
+        $i++;
+      }
+    }
+    return true;
+  }
+
   private static function removeMonitorLinks($text) {
     $count = 0;
     $text = preg_replace("/\\[\\[Monitorul[_ ]Oficial[^|]+\\|([^\\]]+)\\]\\]/", '$1', $text, -1, $count);
@@ -486,6 +545,7 @@ class MediaWikiParser {
 
       if ($i < count($headers23) - 1 && StringUtil::startsWith($line, '===')) {
         $chunk = array_slice($lines, $lineNo, $headers23[$i + 1] - $lineNo);
+        self::replaceCountersignatures($chunk);
         $act = Model::factory('Act')->create();
         $act->year = $monitor->year;
         $actAuthors = array();
@@ -525,7 +585,8 @@ class MediaWikiParser {
         do {
           $signIndex--;
           $signLine = trim($chunk[$signIndex]);
-          $found = StringUtil::startsWith($signLine, '{{') && StringUtil::endsWith($signLine, '}}') && !StringUtil::startsWith($signLine, '{{Imagine');
+          $found = StringUtil::startsWith($signLine, '{{') && StringUtil::endsWith($signLine, '}}') && !StringUtil::startsWith($signLine, '{{Imagine') &&
+            !StringUtil::startsWith($signLine, '{{Csem');
         } while ($signIndex > 0 && !$found);
         if ($found) {
           $signData = self::parseSignatureLine($signLine);
@@ -568,6 +629,9 @@ class MediaWikiParser {
           }
 
           array_splice($chunk, $signIndex, 1);
+          if (!self::parseCountersignatures($actAuthors, $chunk)) {
+            return false;
+          }
         } else {
           FlashMessage::add("Nu pot găsi linia cu semnătura în actul '{$act->name}'.", 'warning');
         }
@@ -850,6 +914,15 @@ class MediaWikiParser {
                                   $parts['FelAct'], $parts['dataSed']);
       }
       break;      
+    case 'Csem':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('name' => array('%s', array('nume')),
+                                                      'position' => array('%s', array('func')),
+                                                      'title' => array('%s', array('titlu')))),
+                                          null, null, null,
+                                          array('nume', 'func'),
+                                          array('titlu' => ''));
+      break;
     default:
       FlashMessage::add(sprintf("Nu știu să interpretez semnături de tipul {{%s}}.", $parts[0]));
       return false;
@@ -925,7 +998,9 @@ class MediaWikiParser {
       $data['number'] = $parts[$actNumberField];
     } else {
       $data['number'] = '';
-      FlashMessage::add("Semnăturile de tip {{{$parts[0]}}} nu includ numărul actului. Voi atribui automat un număr de tip FN.", 'warning');      
+      if ($parts[0] != 'Csem') {
+        FlashMessage::add("Semnăturile de tip {{{$parts[0]}}} nu includ numărul actului. Voi atribui automat un număr de tip FN.", 'warning');      
+      }
     }
     $data['signatureTypes'] = array_fill(0, count($authorSpecs), ActAuthor::$SIGNED);
     $data['notes'] = array_fill(0, count($authorSpecs), '');
