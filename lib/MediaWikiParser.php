@@ -638,6 +638,17 @@ class MediaWikiParser {
                                                       'position' => array('%s', array(1)))),
                                           3, 4, 5, range(1, 5));
       break;
+    case 'Autor-fd':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('name' => array('%s', array(2)),
+                                                      'position' => array('%s', array(1)))),
+                                          null, null, null, array(1, 2));
+      break;
+    case 'Autor-fd-fn':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('trim(concat(institution, position, title, name))' => array('%s', array(1)))),
+                                          null, null, null, array(1));
+      break;
     case 'SemnPad':
       $result = self::parseSignatureParts($line, $parts,
                                           array(array('name' => array('%s', array(1)),
@@ -646,29 +657,63 @@ class MediaWikiParser {
       break;
     case 'SemnPs':
       $result = self::parseSignatureParts($line, $parts,
-                                          array(array('concat(title, " ", name)' => array('%s', array(1)),
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array(1)),
                                                       'position' => array('Președintele Senatului', array()))),
+                                          2, 3, 4, range(1, 4));
+      break;
+    case 'SemnPcd':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array(1)),
+                                                      'position' => array('Președintele Camerei Deputaților', array()))),
+                                          2, 3, 4, range(1, 4));
+      break;
+    case 'Semn-p-Pcd':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array(1)),
+                                                      'position' => array('p. Președintele Camerei Deputaților', array()))),
+                                          2, 3, 4, range(1, 4));
+      break;
+    case 'Semn-p-Ps':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array(1)),
+                                                      'position' => array('p. Președintele Senatului', array()))),
                                           2, 3, 4, range(1, 4));
       break;
     case 'SemnPsPad':
       $result = self::parseSignatureParts($line, $parts,
-                                          array(array('concat(title, " ", name)' => array('%s', array(1)),
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array(1)),
                                                       'position' => array('Președintele Senatului', array())),
                                                 array('name' => array('%s', array(2)),
                                                       'position' => array('Președintele Adunării Deputaților', array()))),
                                           3, 4, 5, range(1, 5));
       break;
+    case 'SemnPsPcd':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array(1)),
+                                                      'position' => array('Președintele Senatului', array())),
+                                                array('name' => array('%s', array(2)),
+                                                      'position' => array('Președintele Camerei Deputaților', array()))),
+                                          3, 4, 5, range(1, 5));
+      break;
     case 'SemnPsPad-fd':
       $result = self::parseSignatureParts($line, $parts,
-                                          array(array('concat(title, " ", name)' => array('%s', array(1)),
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array(1)),
                                                       'position' => array('Președintele Senatului', array())),
                                                 array('name' => array('%s', array(2)),
                                                       'position' => array('Președintele Adunării Deputaților', array()))),
                                           null, null, null, range(1, 2));
       break;
+    case 'SemnPsPcd-fd':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array(1)),
+                                                      'position' => array('Președintele Senatului', array())),
+                                                array('name' => array('%s', array(2)),
+                                                      'position' => array('Președintele Camerei Deputaților', array()))),
+                                          null, null, null, range(1, 2));
+      break;
     case 'SemnLege':
       $result = self::parseSignatureParts($line, $parts,
-                                          array(array('concat(title, " ", name)' => array('%s', array('presSenat')),
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array('presSenat')),
                                                       'position' => array('Președintele Senatului', array())),
                                                 array('name' => array('%s', array('presAd')),
                                                       'position' => array('Președintele Adunării Deputaților', array())),
@@ -684,9 +729,29 @@ class MediaWikiParser {
                                       "României, promulgăm %s și dispunem publicarea sa în Monitorul Oficial al României.", $parts['numeLege']);
       }
       break;
+    case 'SemnLege-p':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array('presSenat')),
+                                                      'position' => array('%s Președintele Senatului', array('pt1'))),
+                                                array('name' => array('%s', array('presAd')),
+                                                      'position' => array('%s Președintele Adunării Deputaților', array('pt2'))),
+                                                array('name' => array('%s', array('presRom')),
+                                                      'position' => array('Președintele României', array()))),
+                                          'oras', 'dataPres', 'nrLege',
+                                          array('presSenat', 'presAd', 'presRom', 'dataPres', 'nrLege'),
+                                          array('oras' => 'București'));
+      if ($result) {
+        $result['notes'][0] = sprintf("Această %s a fost adoptată de Senat în ședința %s din %s.",
+                                      $parts['FelAct'], $parts['tipS'], $parts['dataSenat']);
+        $result['notes'][1] = sprintf("Această %s a fost adoptată de Adunarea Deputaților în ședința %s din %s.",
+                                      $parts['FelAct'], $parts['tipS'], $parts['dataAd']);
+        $result['notes'][2] = sprintf("În temeiul art. 82 lit. m) din Decretul-lege nr. 92/1990 pentru alegerea parlamentului și a Președintelui " .
+                                      "României, promulgăm %s și dispunem publicarea sa în Monitorul Oficial al României.", $parts['numeLege']);
+      }
+      break;
     case 'SemnLege92':
       $result = self::parseSignatureParts($line, $parts,
-                                          array(array('concat(title, " ", name)' => array('%s', array('presSenat')),
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array('presSenat')),
                                                       'position' => array('Președintele Senatului', array())),
                                                 array('name' => array('%s', array('presCd')),
                                                       'position' => array('Președintele Camerei Deputaților', array()))),
@@ -696,6 +761,22 @@ class MediaWikiParser {
       if ($result) {
         $result['notes'][0] = sprintf("Această %s a fost adoptată de Senat în ședința din %s.", $parts['FelAct'], $parts['dataSenat']);
         $result['notes'][1] = sprintf("Această %s a fost adoptată de Camera Deputaților în ședința din %s.", $parts['FelAct'], $parts['dataAd']);
+      }
+      break;
+    case 'SemnLege92p':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array('presSenat')),
+                                                      'position' => array('%s Președintele Senatului', array('pt1'))),
+                                                array('name' => array('%s', array('presCd')),
+                                                      'position' => array('%s Președintele Camerei Deputaților', array('pt2')))),
+                                          'oras', 'dataAct', 'nrAct',
+                                          array('presSenat', 'presCd', 'dataAct', 'nrAct', 'FelAct'),
+                                          array('oras' => 'București'));
+      if ($result) {
+        $result['notes'][0] = sprintf("Această %s a fost adoptată de Senat în ședința %s din %s.",
+                                      $parts['FelAct'], $parts['tipS'], $parts['dataSenat']);
+        $result['notes'][1] = sprintf("Această %s a fost adoptată de Camera Deputaților în ședința %s din %s.",
+                                      $parts['FelAct'], $parts['tipS'], $parts['dataCd']);
       }
       break;
     case 'SemnDecret':
@@ -727,9 +808,23 @@ class MediaWikiParser {
         $result['notes'][1] = "În temeiul art. 99 alin. (2) din Constituția României, contrasemnăm acest decret.";
       }
       break;
+    case 'SemnDecret92p':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('name' => array('%s', array('presRom')),
+                                                      'position' => array('Președintele României', array())),
+                                                array('name' => array('%s', array('primMin')),
+                                                      'position' => array('p. Prim-ministru', array()))),
+                                          'oras', 'dataSem', 'nrDec',
+                                          array('presRom', 'primMin', 'dataSem', 'nrDec'),
+                                          array('oras' => 'București'));
+      if ($result) {
+        $result['signatureTypes'][1] = ActAuthor::$COUNTERSIGNED;
+        $result['notes'][1] = "În temeiul art. 99 alin. (2) din Constituția României, contrasemnăm acest decret.";
+      }
+      break;
     case 'SemnLege-comun':
       $result = self::parseSignatureParts($line, $parts,
-                                          array(array('concat(title, " ", name)' => array('%s', array('presSenat')),
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array('presSenat')),
                                                       'position' => array('Președintele Senatului', array())),
                                                 array('name' => array('%s', array('presCd')),
                                                       'position' => array('Președintele Camerei Deputaților', array()))),
@@ -739,6 +834,20 @@ class MediaWikiParser {
       if ($result) {
         $result['note'] = sprintf("Această %s a fost adoptată de Camera Deputaților și Senat în ședința comună din %s.",
                                   $parts['FelAct'], $parts['dataSenat']);
+      }
+      break;      
+    case 'SemnLege-comun-p':
+      $result = self::parseSignatureParts($line, $parts,
+                                          array(array('trim(concat(title, " ", name))' => array('%s', array('presSenat')),
+                                                      'position' => array('%s Președintele Senatului', array('pt1'))),
+                                                array('name' => array('%s', array('presCd')),
+                                                      'position' => array('%s Președintele Camerei Deputaților', array('pt2')))),
+                                          'oras', 'dataAct', 'nrAct',
+                                          array('presSenat', 'presCd', 'dataSed', 'dataAct', 'nrAct', 'FelAct'),
+                                          array('oras' => 'București'));
+      if ($result) {
+        $result['note'] = sprintf("Această %s a fost adoptată de Camera Deputaților și Senat în ședința comună din %s.",
+                                  $parts['FelAct'], $parts['dataSed']);
       }
       break;      
     default:
@@ -778,7 +887,7 @@ class MediaWikiParser {
         foreach ($format[1] as $key) {
           $args[] = $parts[$key];
         }
-        $s = vsprintf($format[0], $args);
+        $s = trim(vsprintf($format[0], $args));
         $author = $author->where_raw("$expr = '$s'");
         $authorDetails[] = $s;
       }
