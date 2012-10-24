@@ -15,6 +15,7 @@ $signatureTypes = Util::getRequestParameter('signatureTypes');
 $notes = Util::getRequestParameter('notes');
 $monitorId = Util::getRequestParameter('monitorId');
 $placeId = Util::getRequestParameter('placeId');
+$note = Util::getRequestParameter('note');
 $comment = Util::getRequestParameter('comment');
 $submitButton = Util::getRequestParameter('submitButton');
 
@@ -78,6 +79,7 @@ if ($submitButton) {
   $act->monitorId = $monitorId;
   $act->placeId = $placeId;
   $act->comment = $comment;
+  $act->note = $note;
   if ($act->validate()) {
     $act->save();
     ActAuthor::saveAuthors($act->id, $authors, $signatureTypes, $notes);
