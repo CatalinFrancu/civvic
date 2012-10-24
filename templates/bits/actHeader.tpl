@@ -24,6 +24,10 @@
   {/if}
 
   <ul class="authors">
+    {if $act->note}
+      notă: {$act->note}
+    {/if}
+
     {foreach from=$authors item=author key=i}
       {assign var=aa value=$actAuthors.$i}
       <li>

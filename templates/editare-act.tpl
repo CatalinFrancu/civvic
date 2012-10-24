@@ -31,6 +31,13 @@
       <td>{include file="bits/datePicker.tpl" id="issueDate" name="issueDate" value=$act->issueDate}</td>
     </tr>
     <tr>
+      <td>notă:</td>
+      <td>
+        <input type="text" name="note" value="{$act->note}" size="80"
+          placeholder="opțional; unele acte au o notă comună, separată de nota fiecărui semnatar"/>
+      </td>
+    </tr>
+    <tr>
       <td>autor(i):</td>
       <td>
         {include file=bits/authorDynamic.tpl authorName="authors" signatureTypeName="signatureTypes" noteName="notes"
