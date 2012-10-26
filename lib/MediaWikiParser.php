@@ -36,57 +36,65 @@ class MediaWikiParser {
         if ($regexp) {
           // Add regexp for manual matches of the form ((regexp|display_text))
           $regexp = "(\\(\\()?" . $regexp . "(\\s*\\|(?P<displayText>[^|]+)\\)\\))?";
-          // Assert that there isn't a link already and that the text doesn't immediately follow a dash
-          $regexp = "/(?<!-){$regexp}(?!<\\/a)/i";
+          // Assert that the text doesn't immediately follow a dash
+          $regexp = "/(?<!-){$regexp}/i";
           // Replace the NUMBER and DATE with number and date regexps
           $regexp = str_replace('NUMBER', '(?P<number>[-0-9A-Za-z.]+)', $regexp);
           $regexp = str_replace('DATE', sprintf("((?P<day>\\d{1,2})(\\s+|\\.)(%s)(\\s+|\\.))?(?P<year>\\d{4})", implode('|', $monthRegexps)), $regexp);
 
-          $matches = array();
-          preg_match_all($regexp, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
-          foreach (array_reverse($matches) as $match) {
-            $linkText = array_key_exists('displayText', $match) ? $match['displayText'][0] : $match[0][0];
-            $position = $match[0][1];
-            $number = array_key_exists('number', $match) ? $match['number'][0] : null;
-            $year = array_key_exists('year', $match) ? $match['year'][0] : null;
-            $day = array_key_exists('day', $match) ? $match['day'][0] : 0;
-            if (array_key_exists('monthName', $match) && $match['monthName'][0]) {
-              $month = 1 + array_search(strtolower($match['monthName'][0]), StringUtil::$months);
-            } else if (array_key_exists('monthArabic', $match) && $match['monthArabic'][0]) {
-              $month = (int)$match['monthArabic'][0];
-            } else if (array_key_exists('monthRoman', $match) && $match['monthRoman'][0]) {
-              $month = 1 + array_search(strtolower($match['monthRoman'][0]), StringUtil::$monthsRoman);
-            } else {
-              $month = 0;
-            }
+          // Split the text into <a ...>...</a> and other things. We may only insert links outside of other <a> tags.
+          $textParts = StringUtil::splitATags($text);
+          foreach ($textParts as $i => $tp) {
+            if (!StringUtil::startsWith($tp, '<a ')) {
+              $matches = array();
+              preg_match_all($regexp, $tp, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+              foreach (array_reverse($matches) as $match) {
+                $linkText = array_key_exists('displayText', $match) ? $match['displayText'][0] : $match[0][0];
+                $position = $match[0][1];
+                $number = array_key_exists('number', $match) ? $match['number'][0] : null;
+                $year = array_key_exists('year', $match) ? $match['year'][0] : null;
+                $day = array_key_exists('day', $match) ? $match['day'][0] : 0;
+                if (array_key_exists('monthName', $match) && $match['monthName'][0]) {
+                  $month = 1 + array_search(strtolower($match['monthName'][0]), StringUtil::$months);
+                } else if (array_key_exists('monthArabic', $match) && $match['monthArabic'][0]) {
+                  $month = (int)$match['monthArabic'][0];
+                } else if (array_key_exists('monthRoman', $match) && $match['monthRoman'][0]) {
+                  $month = 1 + array_search(strtolower($match['monthRoman'][0]), StringUtil::$monthsRoman);
+                } else {
+                  $month = 0;
+                }
 
-            if ($position && $text[$position - 1] == '@') {
-              // Automatic link is disallowed explicitly
-              $text = substr($text, 0, $position - 1) . substr($text, $position);
-            } else {
-              $act = Act::get_by_id($actVersion->actId);
+                if ($position && $tp[$position - 1] == '@') {
+                  // Automatic link is disallowed explicitly
+                  $tp = substr($tp, 0, $position - 1) . substr($tp, $position);
+                } else {
+                  $act = Act::get_by_id($actVersion->actId);
 
-              $ref = Model::factory('ActReference')->create();
-              $ref->actTypeId = $at->id;
-              $ref->number = $number;
-              $ref->year = $year;
-              $ref->issueDate = ($day && $month) ? sprintf("%d-%02d-%02d", $year, $month, $day) : null;
+                  $ref = Model::factory('ActReference')->create();
+                  $ref->actTypeId = $at->id;
+                  $ref->number = $number;
+                  $ref->year = $year;
+                  $ref->issueDate = ($day && $month) ? sprintf("%d-%02d-%02d", $year, $month, $day) : null;
 
-              $referredAct = Act::getReferredAct($ref, $act ? $act->estimateIssueDate() : null);
-              if ($referredAct) {
-                $ref->referredActId = $referredAct->id;
-              }
+                  $referredAct = Act::getReferredAct($ref, $act ? $act->estimateIssueDate() : null);
+                  if ($referredAct) {
+                    $ref->referredActId = $referredAct->id;
+                  }
 
-              // Self-referring acts do occur, see ID = 1040 or 1360
-              if (!$act || $ref->referredActId != $act->id) {
-                $link = Act::getLink($referredAct, $ref, $linkText);
-                $text = substr($text, 0, $position) . $link . substr($text, $position + strlen($match[0][0]));
-                if ($actReferences !== null) {
-                  $actReferences[] = $ref;
+                  // Self-referring acts do occur, see ID = 1040 or 1360
+                  if (!$act || $ref->referredActId != $act->id) {
+                    $link = Act::getLink($referredAct, $ref, $linkText);
+                    $tp = substr($tp, 0, $position) . $link . substr($tp, $position + strlen($match[0][0]));
+                    if ($actReferences !== null) {
+                      $actReferences[] = $ref;
+                    }
+                  }
                 }
               }
+              $textParts[$i] = $tp;
             }
           }
+          $text = implode('', $textParts);
         }
       }
     }

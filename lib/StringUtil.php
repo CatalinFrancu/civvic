@@ -85,6 +85,15 @@ class StringUtil {
   static function capitalize($s) {
     return mb_strtoupper(mb_substr($s, 0, 1)) . mb_substr($s, 1);
   }
+
+  /** Splits
+   *    abc<a href="...">def</a>ghi<a href="...">jkl</a>mno
+   *  into
+   *    abc, <a href="...">def</a>, ghi, <a href="...">jkl</a>, mno
+   **/
+  static function splitATags($s) {
+    return preg_split("/(<a .*<\\/a>)/U", $s, 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+  }
 }
 
 ?>
