@@ -37,21 +37,42 @@ class Author extends BaseObject {
     return implode(', ', $bits);
   }
 
+  /** Returns an error message, or null on success. **/
   function validate() {
     if (!$this->institution && !$this->position && !$this->title && !$this->name) {
-      FlashMessage::add('Cel puțin unul din câmpuri trebue să fie nevid.');
-      return false;
+      return 'Cel puțin unul din câmpuri trebue să fie nevid.';
     }
-    return true;
+    return false;
+  }
+
+  function canDelete() {
+    $count = Model::factory('ActAuthor')->where('authorId', $this->id)->count();
+    error_log("id: $this->id, count: $count");
+    return $count == 0;
   }
 
   function delete() {
-    $count = Model::factory('ActAuthor')->where('authorId', $this->id)->count();
-    if ($count) {
-      FlashMessage::add('Autorul ' . $this->getDisplayName() . ' nu poate fi șters, deoarece există acte care îl folosesc.');
-      return false;
+    if ($this->canDelete()) {
+      return parent::delete();
     }
-    return parent::delete();
+    return false;
+  }
+
+  function __toString() {
+    $s = '';
+    if ($this->name) {
+      $s .= "[nume:{$this->name}] ";
+    }
+    if ($this->title) {
+      $s .= "[titlu:{$this->title}] ";
+    }
+    if ($this->position) {
+      $s .= "[funcție:{$this->position}] ";
+    }
+    if ($this->institution) {
+      $s .= "[instituție:{$this->institution}] ";
+    }
+    return trim($s);
   }
 
 }

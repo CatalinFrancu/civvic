@@ -41,4 +41,4 @@
   </div>
 {/if}
 
-{$shownAv->htmlContents}
+<div id="actBody">{$shownAv->htmlContents}</div>
