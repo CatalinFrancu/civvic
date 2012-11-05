@@ -66,9 +66,6 @@ div.clearer {
   clear: both;
 }
 
-#template {
-}
-
 footer {
   border-top: 1px solid #ddd;
   margin-top: 20px;
@@ -332,11 +329,11 @@ span.deemphActName {
 
 /** templates converted with MediaWiki **/
 
-#template table {
+#actBody table {
   margin-top: 5px;
 }
 
-#template table th, #template table td {
+#actBody table th, #actBody table td {
   border: 1px solid #777;
   padding: 4px;
 }

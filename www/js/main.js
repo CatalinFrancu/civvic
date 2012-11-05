@@ -51,3 +51,17 @@ function actSelectNumberChange(numberSelect, button) {
     button.attr('disabled', 'disabled');
   }
 }
+
+function startsWith(str, sub) {
+  return str.substr(0, sub.length) == sub;
+}
+
+function debug(obj) {
+  var s = '';
+  for (prop in obj) {
+    if (obj[prop] && !startsWith(obj[prop].toString(), 'function ')) {
+      s += prop + ':' + obj[prop] + '\n';
+    }
+  }
+  alert(s);
+}

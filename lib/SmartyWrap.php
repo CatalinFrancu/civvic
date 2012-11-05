@@ -58,6 +58,9 @@ class SmartyWrap {
 
   static function addJs($id) {
     switch ($id) {
+    case 'authors':
+      self::$jsFiles[] = 'authors.js';
+      break;
     case 'datepicker':
       self::$jsFiles[] = 'jquery.ui.datepicker-ro.js';
       break;

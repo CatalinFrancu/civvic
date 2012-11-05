@@ -1,4 +1,12 @@
 jQuery UI: using datepicker, autocomplete
 for elFinder: dialog, tabs, selectable, draggable, droppable, resizable
 
-jqgrid: Grid base (jqGrid), Formatter, Custom (additional methods), Table to Grid, jQuery UI addons
+jqgrid:
+  Grid base (jqGrid)
+  Formatter
+  Custom (additional methods)
+  Editing -> Common
+  Editing -> Form edit
+  Editing -> Filter Plugin
+  Table to Grid
+  jQuery UI addons

@@ -12,8 +12,10 @@
   </head>
 
   <body>
-    <div id="fb-root"></div>
-    <script>facebookInit(document, 'script', 'facebook-jssdk');</script>
+    {if $productionMode && (!$user || !$user->admin)}
+      <div id="fb-root"></div>
+      <script>facebookInit(document, 'script', 'facebook-jssdk');</script>
+    {/if}
 
     <div id="sidebar">
       <div id="logo">
@@ -81,7 +83,9 @@
     <div style="clear: both"></div>
 
     <footer>
-      <div class="fb-like" data-href="http://facebook.com/civvic.ro" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false"></div>
+      {if $productionMode && (!$user || !$user->admin)}
+        <div class="fb-like" data-href="http://facebook.com/civvic.ro" data-send="false" data-layout="button_count" data-width="450" data-show-faces="false"></div>
+      {/if}
 
       <div id="license">
         Datele Civvic.ro sunt disponibile sub
