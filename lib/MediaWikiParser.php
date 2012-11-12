@@ -291,7 +291,7 @@ class MediaWikiParser {
    * Ministrul industriei, '''Surname Name'''
    * more signatures...
    **/
-  private static function replaceCountersignatures(&$lines) {
+  private static function replaceCountersignatures1(&$lines) {
     $pos = 0;
     while ($pos < count($lines) && trim($lines[$pos]) != 'Contrasemnează:') {
       $pos++;
@@ -315,11 +315,42 @@ class MediaWikiParser {
         FlashMessage::add(sprintf('Am extras automat contrasemnătura func:[%s], titlu:[%s], nume:[%s]',
                                   $matches['position'], $matches['title'], $matches['name']), 'warning');
       } else if ($l) {
-        FlashMessage::add("Linia [$l] nu are sintaxa unei contrasemnături", 'warning');
+        FlashMessage::add("Linia [$l] nu are sintaxa unei contrasemnături. Fiecare contrasemnătură trebuie să stea pe o singură linie.", 'warning');
       }
     }
 
     array_splice($lines, $pos, $end - $pos, $newLines);
+  }
+
+  /** Replaces countersignatures of the form:
+   *
+   * {|...<u>Contrasemnează:</u>
+   * |-
+   * |...|
+   * |...|Funcție, <br/> '''name'''
+   * |-
+   * |...
+   * |}
+   *
+   * Ministrul industriei, '''Surname Name'''
+   * more signatures...
+   **/
+  private static function replaceCountersignatures2(&$lines) {
+    $text = implode("\n", $lines);
+    $matches = array();
+    preg_match("/\{\|[^{]+<u>Contrasemnează:<\/u>\n(?<rows>(\|-\n.*\n.*\n)+)\|\}\n/", $text, $matches, PREG_OFFSET_CAPTURE);
+    if (count($matches)) {
+      $newText = '';
+      $offset = $matches[0][1];
+      $length = strlen($matches[0][0]);
+      $authorMatches = array();
+      preg_match_all("/.*\n.*\n\|[^|]+\|(?<position>.*),(\s|<br\/>)*'''(?<name>.*)'''\n/", $matches['rows'][0], $authorMatches, PREG_SET_ORDER);
+      foreach ($authorMatches as $am) {
+        $newText .= sprintf("{{Csem|func=%s|titlu=|nume=%s}}\n", $am['position'], $am['name']);
+      }
+      $text = substr($text, 0, $offset) . $newText . substr($text, $offset + $length);
+      $lines = explode("\n", $text);
+    }
   }
 
   /** Returns true on success, false on failure **/
@@ -553,7 +584,8 @@ class MediaWikiParser {
 
       if ($i < count($headers23) - 1 && StringUtil::startsWith($line, '===')) {
         $chunk = array_slice($lines, $lineNo, $headers23[$i + 1] - $lineNo);
-        self::replaceCountersignatures($chunk);
+        self::replaceCountersignatures1($chunk);
+        self::replaceCountersignatures2($chunk);
         $act = Model::factory('Act')->create();
         $act->year = $monitor->year;
         $actAuthors = array();
