@@ -7,6 +7,13 @@ $id = Util::getRequestParameter('id');
 $version = Util::getRequestParameter('version');
 
 $act = Act::get_by_id($id);
+
+if (!$act) {
+  FlashMessage::add('Actul cerut nu există.');
+  SmartyWrap::display('act.tpl');
+  exit;
+}
+
 if ($version) {
   $shownAv = Model::factory('ActVersion')->where('actId', $id)->where('versionNumber', $version)->find_one();
 } else {
