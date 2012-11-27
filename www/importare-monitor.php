@@ -2,6 +2,7 @@
 
 require_once '../lib/Util.php';
 Util::requireAdmin();
+ini_set('max_execution_time', '3600');
 
 $number = Util::getRequestParameter('number');
 $year = Util::getRequestParameter('year');
