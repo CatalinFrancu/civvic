@@ -75,6 +75,12 @@
       </div>
       <div class="clearer"></div>
 
+      {if !$user}
+        <div class="banner">
+          <a href="http://hartapoliticii.ro"><img src="{$wwwRoot}img/hp.jpg" title="banner hartapoliticii.ro"/></a>
+        </div>
+      {/if}
+
       {include file="bits/flashMessage.tpl"}
       <div id="template">
         {include file=$templateName}
