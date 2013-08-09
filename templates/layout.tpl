@@ -98,9 +98,6 @@
         <a rel="license" href="http://creativecommons.org/licenses/by-nd/3.0/ro/">Creative Commons Attribution-NoDerivs 3.0 Romania License</a>.
       </div>
 
-      {if $productionMode && (!$user || !$user->admin)}
-        {include file="bits/googleAnalytics.tpl"}
-      {/if}
     </footer>
   </body>
 
