@@ -25,7 +25,7 @@ productionMode = false
 
 ; Location of the smarty class file.
 ; This can be an absolute file name or relative to one of the paths in include_path
-smartyClass = "smarty/Smarty.class.php"
+smartyClass = "smarty-4.3.0/Smarty.class.php"
 
 [pdfImage]
 
