@@ -12,7 +12,7 @@
   {/if}
   An: <input type="text" name="year" value="{$monitor->year}"/><br/>
   Număr: <input type="text" name="number" value="{$monitor->number}"/><br/>
-  Data: {include file="bits/datePicker.tpl" id="issueDate" name="issueDate" value=$monitor->issueDate}<br/>
+  Data: {include "bits/datePicker.tpl" id="issueDate" name="issueDate" value=$monitor->issueDate}<br/>
 
   <input type="submit" name="submitButton" value="Salvează"/>
 </form>

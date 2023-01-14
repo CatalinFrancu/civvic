@@ -8,14 +8,14 @@
   <table class="editForm">
     <tr>
       <td>cauzată de:</td>
-      <td>{include file=bits/actAutocomplete.tpl name="modifyingActId" selected=$modifyingAct autofocus=true}</td>
+      <td>{include "bits/actAutocomplete.tpl" name="modifyingActId" selected=$modifyingAct autofocus=true}</td>
     </tr>
     <tr>
       <td>starea:</td>
       <td>
-        {include file=bits/actStatusDropdown.tpl name="status" actStatuses=$actStatuses selected=$av->status}
+        {include "bits/actStatusDropdown.tpl" name="status" actStatuses=$actStatuses selected=$av->status}
         <div id="repubDiv">
-          în {include file=bits/monitorDropdown.tpl name="monitorId" monitors=$monitors selected=$av->monitorId}</td>
+          în {include "bits/monitorDropdown.tpl" name="monitorId" monitors=$monitors selected=$av->monitorId}</td>
         </div>
       </td>
     </tr>

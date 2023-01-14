@@ -1,7 +1,7 @@
 {* Parameters: $authorName $signatureTypeName $noteName $authors $signatureTypes *}
 {foreach from=$authors item=a key=i}
   <div class="authorWrapper">
-    {include file=bits/signatureTypeDropdown.tpl name="`$signatureTypeName`[]" signatureTypes=$signatureTypes
+    {include "bits/signatureTypeDropdown.tpl" name="`$signatureTypeName`[]" signatureTypes=$signatureTypes
       selected=$actAuthors.$i->signatureType emptyOption=false}
     <input type="text" name="{$authorName}[]" class="authorName" value="{$a->getDisplayName()}" size="80"/>
     <br/>
@@ -13,7 +13,7 @@
 {* There has to be at least one set of inputs for cloning to work. *}
 {if !count($authors)}
   <div class="authorWrapper">
-    {include file=bits/signatureTypeDropdown.tpl name="`$signatureTypeName`[]" signatureTypes=$signatureTypes selected=null emptyOption=false}
+    {include "bits/signatureTypeDropdown.tpl" name="`$signatureTypeName`[]" signatureTypes=$signatureTypes selected=null emptyOption=false}
     <input type="text" name="{$authorName}[]" class="authorName" value="" size="80"/>
     <br/>
     <input type="text" name="{$noteName}[]" value="" size="90" placeholder="opțional: în temeiul legii... etc."/>

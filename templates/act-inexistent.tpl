@@ -8,7 +8,7 @@
 
 <ul class="actList">
   {foreach from=$acts item=act key=i}
-    <li>{include file=bits/actLink.tpl act=$act} versiunea {$actVersions.$i->versionNumber} din
+    <li>{include "bits/actLink.tpl" act=$act} versiunea {$actVersions.$i->versionNumber} din
      {$modifyingActs.$i->issueDate|date_format:"%e %B %Y"}<br/>
      <span class="deemphActName">{$act->name}</span>
     </li>

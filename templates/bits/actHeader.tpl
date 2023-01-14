@@ -6,7 +6,7 @@
     {if $actType}<li>tipul: <b>{$actType->name}</b>{/if}
     {if $act->number}<li>numărul: <b>{$act->number} / {$act->year}</b></li>{/if}
     {if $act->issueDate}<li>data: <b>{$act->issueDate|date_format:"%e %B %Y"}</b></li>{/if}
-    {if $monitor}<li>publicat în {include file=bits/monitorLink.tpl monitor=$monitor}</li>{/if}
+    {if $monitor}<li>publicat în {include "bits/monitorLink.tpl" monitor=$monitor}</li>{/if}
   </ul>
 
   {if count($republicationMonitors)}
@@ -16,7 +16,7 @@
         {strip}
           {foreach from=$republicationMonitors item=rep key=i}
             {if $i}, {/if}
-            {include file=bits/monitorLink.tpl monitor=$rep}
+            {include "bits/monitorLink.tpl" monitor=$rep}
           {/foreach}
         {/strip}
       </li>
@@ -61,6 +61,6 @@
       <a href="editare-versiune-act?id={$shownAv->id}">această versiune</a>
     </span>
 
-    {include file=bits/monitorPdfLink.tpl monitor=$monitor}
+    {include "bits/monitorPdfLink.tpl" monitor=$monitor}
   {/if}
 </div>

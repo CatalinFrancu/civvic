@@ -1,7 +1,7 @@
 <h3>Bun venit la Civvic.ro</h3>
 
 <form id="searchForm" action="actDispatcher">
-  {include file=bits/actAutocomplete.tpl name="actId" autofocus=true refFieldName="actData" submitOnSelect=true}
+  {include "bits/actAutocomplete.tpl" name="actId" autofocus=true refFieldName="actData" submitOnSelect=true}
   <input type="submit" name="submitButton" value="Caută"/>
 </form>
 
@@ -14,7 +14,7 @@ modificări asupra ei.</p>
 
 <h3>Navighează la un act</h3>
 
-{include file=bits/actSelect.tpl text="Legea" actType="Lege" prefix="law" years=$lawYears}
-{include file=bits/actSelect.tpl text="Decretul" actType="Decret" prefix="decree" years=$decreeYears}
-{include file=bits/actSelect.tpl text="Decretul-lege" actType="Decret-lege" prefix="dl" years=$dlYears}
-{include file=bits/actSelect.tpl text="Hotărârea guvernului" actType="Hotărâre a Guvernului" prefix="ord" years=$ordYears}
+{include "bits/actSelect.tpl" text="Legea" actType="Lege" prefix="law" years=$lawYears}
+{include "bits/actSelect.tpl" text="Decretul" actType="Decret" prefix="decree" years=$decreeYears}
+{include "bits/actSelect.tpl" text="Decretul-lege" actType="Decret-lege" prefix="dl" years=$dlYears}
+{include "bits/actSelect.tpl" text="Hotărârea guvernului" actType="Hotărâre a Guvernului" prefix="ord" years=$ordYears}

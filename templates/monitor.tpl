@@ -7,13 +7,13 @@
       <a href="editare-monitor?id={$monitor->id}">editează</a>
     </span>
 
-    {include file=bits/monitorPdfLink.tpl monitor=$monitor}
+    {include "bits/monitorPdfLink.tpl" monitor=$monitor}
   {/if}
 </div>
 
 <ul class="actList">
   {foreach from=$acts item=a}
-     <li>{include file=bits/actLink.tpl act=$a} {$a->name}</li>
+     <li>{include "bits/actLink.tpl" act=$a} {$a->name}</li>
   {/foreach}
 </ul>
 
@@ -22,7 +22,7 @@
 
   <ul class="actList">
     {foreach from=$republishedActs item=a}
-       <li>{include file=bits/actLink.tpl act=$a} {$a->name}</li>
+       <li>{include "bits/actLink.tpl" act=$a} {$a->name}</li>
     {/foreach}
   </ul>
 {/if}

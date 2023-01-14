@@ -3,7 +3,7 @@
 {assign var="autofocus" value=$autofocus|default:false}
 {assign var="refFieldName" value=$refFieldName|default:null}
 {assign var="submitOnSelect" value=$submitOnSelect|default:false}
-<input type="hidden" id="{$name}_hidden" name="{$name}" value="{$selected->id}"/>
+<input type="hidden" id="{$name}_hidden" name="{$name}" value="{$selected->id|default:""}"/>
 {if $refFieldName}
   <input type="hidden" id="{$name}_ref" name="{$refFieldName}" value=""/>
 {/if}

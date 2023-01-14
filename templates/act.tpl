@@ -1,11 +1,11 @@
 {if $act}
-  {include file=bits/actHeader.tpl act=$act actType=$actType monitor=$monitor authors=$authors actAuthors=$actAuthors
-    versions=$versions shownAv=$shownAv republicationDates=$republicationDates editLinks=true}
+  {include "bits/actHeader.tpl" act=$act actType=$actType monitor=$monitor authors=$authors actAuthors=$actAuthors
+    versions=$versions shownAv=$shownAv republicationMonitors=$republicationMonitors editLinks=true}
 {/if}
 
 {if $shownAv->status == $smarty.const.ACT_STATUS_REPEALED}
   <div class="repealedMention">
-    Acest act a fost abrogat de {include file=bits/actLink.tpl act=$modifyingAct}.
+    Acest act a fost abrogat de {include "bits/actLink.tpl" act=$modifyingAct}.
   </div>
 {/if}
 
@@ -26,7 +26,7 @@
     <p>Acte care menționează acest act:</p>
     <ul>
       {foreach from=$referringActs item=a}
-        <li>{include file=bits/actLink.tpl act=$a}</li>
+        <li>{include "bits/actLink.tpl" act=$a}</li>
       {/foreach}
     </ul>
   </div>
@@ -37,7 +37,7 @@
     <p>Acte cu același nume:</p>
     <ul>
       {foreach from=$collidingActs item=a}
-        <li>{include file=bits/actLink.tpl act=$a}</li>
+        <li>{include "bits/actLink.tpl" act=$a}</li>
       {/foreach}
     </ul>
   </div>

@@ -5,6 +5,6 @@ etc.), vom folosi numele secvențiale FN1, FN2, ...
 
 <ul>
   {foreach from=$acts item=a}
-    <li>{include file=bits/actLink.tpl act=$a} {$a->name}</li>
+    <li>{include "bits/actLink.tpl" act=$a} {$a->name}</li>
   {/foreach}
 </ul>

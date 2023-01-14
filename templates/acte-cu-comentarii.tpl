@@ -3,7 +3,7 @@
 <ul>
   {foreach from=$acts item=a}
     <li>
-     {include file=bits/actLink.tpl act=$a} {$a->name}<br/>
+     {include "bits/actLink.tpl" act=$a} {$a->name}<br/>
      <span class="deemphActName">{$a->comment}</span>
     </li>
   {/foreach}

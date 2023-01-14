@@ -17,7 +17,7 @@
     </tr>
     <tr>
       <td>tip:</td>
-      <td>{include file="bits/actTypeDropdown.tpl" name="actTypeId" actTypes=$actTypes selected=$act->actTypeId autofocus=true}</td>
+      <td>{include "bits/actTypeDropdown.tpl" name="actTypeId" actTypes=$actTypes selected=$act->actTypeId autofocus=true}</td>
     </tr>
     <tr>
       <td>număr/an:</td>
@@ -28,7 +28,7 @@
     </tr>
     <tr>
       <td>data:</td>
-      <td>{include file="bits/datePicker.tpl" id="issueDate" name="issueDate" value=$act->issueDate}</td>
+      <td>{include "bits/datePicker.tpl" id="issueDate" name="issueDate" value=$act->issueDate}</td>
     </tr>
     <tr>
       <td>notă:</td>
@@ -40,17 +40,17 @@
     <tr>
       <td>autor(i):</td>
       <td>
-        {include file=bits/authorDynamic.tpl authorName="authors" signatureTypeName="signatureTypes" noteName="notes"
+        {include "bits/authorDynamic.tpl" authorName="authors" signatureTypeName="signatureTypes" noteName="notes"
         authors=$authors signatureTypes=$signatureTypes}
       </td>
     </tr>
     <tr>
       <td>publicat în</td>
-      <td>{include file=bits/monitorDropdown.tpl name="monitorId" monitors=$monitors selected=$act->monitorId}</td>
+      <td>{include "bits/monitorDropdown.tpl" name="monitorId" monitors=$monitors selected=$act->monitorId}</td>
     </tr>
     <tr>
       <td>locul:</td>
-      <td>{include file=bits/placeDropdown.tpl name="placeId" places=$places selected=$act->placeId}</td>
+      <td>{include "bits/placeDropdown.tpl" name="placeId" places=$places selected=$act->placeId}</td>
     </tr>
     <tr>
       <td>comentariu:</td>

@@ -83,9 +83,9 @@
       *}
       {/if}
 
-      {include file="bits/flashMessage.tpl"}
+      {include "bits/flashMessage.tpl"}
       <div id="template">
-        {include file=$templateName}
+        {include "$templateName"}
       </div>
     </div>
     <div style="clear: both"></div>
